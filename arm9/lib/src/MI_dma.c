@@ -4,7 +4,10 @@
 #include "OS_terminate_proc.h"
 #include "sections.h"
 
+#ifndef __GNUC__
 #pragma section ITCM begin
+#endif
+SECTION_ITCM
 ARM_FUNC void MIi_DmaSetParams(u32 dmaNo, u32 src, u32 dest, u32 ctrl)
 {
     OSIntrMode lastIntrMode = OS_DisableInterrupts();
@@ -15,6 +18,7 @@ ARM_FUNC void MIi_DmaSetParams(u32 dmaNo, u32 src, u32 dest, u32 ctrl)
     (void)OS_RestoreInterrupts(lastIntrMode);
 }
 
+SECTION_ITCM
 ARM_FUNC void MIi_DmaSetParams_wait(u32 dmaNo, u32 src, u32 dest, u32 ctrl)
 {
     OSIntrMode enabled = OS_DisableInterrupts();
@@ -25,10 +29,10 @@ ARM_FUNC void MIi_DmaSetParams_wait(u32 dmaNo, u32 src, u32 dest, u32 ctrl)
 
     //delay cycles
     {
-        u32 delay = reg_MI_DMA0SAD;
+        u32 delay UNUSED = reg_MI_DMA0SAD;
     }
     {
-        u32 delay = reg_MI_DMA0SAD;
+        u32 delay UNUSED = reg_MI_DMA0SAD;
     }
 
     if (!dmaNo)
@@ -41,6 +45,7 @@ ARM_FUNC void MIi_DmaSetParams_wait(u32 dmaNo, u32 src, u32 dest, u32 ctrl)
     (void)OS_RestoreInterrupts(enabled);
 }
 
+SECTION_ITCM
 ARM_FUNC void MIi_DmaSetParams_noInt(u32 dmaNo, u32 src, u32 dest, u32 ctrl)
 {
     vu32   *p = (vu32 *)((u32)REG_ADDR_DMA0SAD + dmaNo * 12);
@@ -49,6 +54,7 @@ ARM_FUNC void MIi_DmaSetParams_noInt(u32 dmaNo, u32 src, u32 dest, u32 ctrl)
     *(p + 2) = (vu32)ctrl;
 }
 
+SECTION_ITCM
 ARM_FUNC void MIi_DmaSetParams_wait_noInt(u32 dmaNo, u32 src, u32 dest, u32 ctrl)
 {
     vu32 *p = (vu32 *)((u32)REG_ADDR_DMA0SAD + dmaNo * 12);
@@ -58,10 +64,10 @@ ARM_FUNC void MIi_DmaSetParams_wait_noInt(u32 dmaNo, u32 src, u32 dest, u32 ctrl
 
     //delay cycles
     {
-        u32 delay = reg_MI_DMA0SAD;
+        u32 delay UNUSED = reg_MI_DMA0SAD;
     }
     {
-        u32 delay = reg_MI_DMA0SAD;
+        u32 delay UNUSED = reg_MI_DMA0SAD;
     }
 
     if (!dmaNo)
@@ -73,13 +79,15 @@ ARM_FUNC void MIi_DmaSetParams_wait_noInt(u32 dmaNo, u32 src, u32 dest, u32 ctrl
 
     //delay cycles
     {
-        u32 delay = reg_MI_DMA0SAD;
+        u32 delay UNUSED = reg_MI_DMA0SAD;
     }
     {
-        u32 delay = reg_MI_DMA0SAD;
+        u32 delay UNUSED = reg_MI_DMA0SAD;
     }
 }
+#ifndef __GNUC__
 #pragma section ITCM end
+#endif
 
 ARM_FUNC void MI_DmaFill32(u32 dmaNo, void *dest, u32 data, u32 size)
 {
@@ -226,10 +234,10 @@ ARM_FUNC void MI_StopDma(u32 dmaNo)
 
     //delay cycles
     {
-        s32 delay = dmaCntp[0];
+        s32 delay UNUSED = dmaCntp[0];
     }
     {
-        s32 delay = dmaCntp[0];
+        s32 delay UNUSED = dmaCntp[0];
     }
 
     if (!dmaNo)

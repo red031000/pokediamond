@@ -44,7 +44,9 @@ ARM_FUNC FSResult FSi_WriteMemCallback(struct FSArchive * p_arc, const void * sr
 
 ARM_FUNC FSResult FSi_ReadMemoryCore(FSArchive * p_arc, void * dest, u32 pos, u32 size)
 {
+#ifndef __GNUC__
 #pragma unused(p_arc)
+#endif
     MI_CpuCopy8((const void *)pos, dest, size);
     return FS_RESULT_SUCCESS;
 }

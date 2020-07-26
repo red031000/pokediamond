@@ -122,6 +122,22 @@ ARM_FUNC void MTX_MultVec43(struct Vecx32 *vec, struct Mtx43 *mtx, struct Vecx32
     dst->z += mtx->_[11];
 }
 
+#ifdef __GNUC__
+NAKED
+ARM_FUNC void MTX_Identity43_(struct Mtx43 *mtx){
+    asm("mov r2, #0x1000\n\
+         mov r3, #0x0\n\
+         stmia r0!, {r2-r3}\n\
+         mov r1, #0x0\n\
+         stmia r0!, {r1,r3}\n\
+         stmia r0!, {r2-r3}\n\
+         stmia r0!, {r1,r3}\n\
+         stmia r0!, {r2-r3}\n\
+         stmia r0!, {r1,r3}\n\
+         bx lr\n\
+         .pool");
+}
+#else
 ARM_FUNC asm void MTX_Identity43_(struct Mtx43 *mtx){
     mov r2, #0x1000
     mov r3, #0x0
@@ -134,7 +150,27 @@ ARM_FUNC asm void MTX_Identity43_(struct Mtx43 *mtx){
     stmia r0!, {r1,r3}
     bx lr
 }
+#endif
 
+#ifdef __GNUC__
+NAKED
+ARM_FUNC void MTX_Copy43To44_(struct Mtx43 *src, struct Mtx44 *dst){
+    asm("stmdb sp!, {r4}\n\
+         mov r12, #0x0\n\
+         ldmia r0!, {r2-r4}\n\
+         stmia r1!, {r2-r4,r12}\n\
+         ldmia r0!, {r2-r4}\n\
+         stmia r1!, {r2-r4,r12}\n\
+         ldmia r0!, {r2-r4}\n\
+         stmia r1!, {r2-r4,r12}\n\
+         mov r12, #0x1000\n\
+         ldmia r0!, {r2-r4}\n\
+         stmia r1!, {r2-r4,r12}\n\
+         ldmia sp!, {r4}\n\
+         bx lr\n\
+         .pool");
+}
+#else
 ARM_FUNC asm void MTX_Copy43To44_(struct Mtx43 *src, struct Mtx44 *dst){
     stmdb sp!, {r4}
     mov r12, #0x0
@@ -150,7 +186,25 @@ ARM_FUNC asm void MTX_Copy43To44_(struct Mtx43 *src, struct Mtx44 *dst){
     ldmia sp!, {r4}
     bx lr
 }
+#endif
 
+#ifdef __GNUC__
+NAKED
+THUMB_FUNC void MTX_Scale43_(struct Mtx43 *dst, fx32 x, fx32 y, fx32 z){
+    asm("stmia r0!, {r1}\n\
+         mov r1, #0x0\n\
+         str r3, [r0, #0x1c]\n\
+         mov r3, #0x0\n\
+         stmia r0!, {r1,r3}\n\
+         stmia r0!, {r1-r3}\n\
+         mov r2, #0x0\n\
+         stmia r0!, {r1,r3}\n\
+         add r0, #0x4\n\
+         stmia r0!, {r1-r3}\n\
+         bx lr\n\
+         .pool");
+}
+#else
 THUMB_FUNC asm void MTX_Scale43_(struct Mtx43 *dst, fx32 x, fx32 y, fx32 z){
     stmia r0!, {r1}
     mov r1, #0x0
@@ -164,7 +218,29 @@ THUMB_FUNC asm void MTX_Scale43_(struct Mtx43 *dst, fx32 x, fx32 y, fx32 z){
     stmia r0!, {r1-r3}
     bx lr
 }
+#endif
 
+#ifdef __GNUC__
+NAKED
+THUMB_FUNC void MTX_RotX43_(struct Mtx43 *mtx, fx32 sinphi, fx32 cosphi){
+    asm("str r1, [r0, #0x14]\n\
+         neg r1, r1\n\
+         str r1, [r0, #0x1c]\n\
+         mov r1, #0x1\n\
+         lsl r1, r1, #0xc\n\
+         stmia r0!, {r1}\n\
+         mov r3, #0x0\n\
+         mov r1, #0x0\n\
+         stmia r0!, {r1,r3}\n\
+         stmia r0!, {r1-r2}\n\
+         str r1, [r0, #0x4]\n\
+         add r0, #0xc\n\
+         stmia r0!, {r2-r3}\n\
+         stmia r0!, {r1,r3}\n\
+         bx lr\n\
+         .pool");
+}
+#else
 THUMB_FUNC asm void MTX_RotX43_(struct Mtx43 *mtx, fx32 sinphi, fx32 cosphi){
     str r1, [r0, #0x14]
 	neg r1, r1
@@ -182,7 +258,26 @@ THUMB_FUNC asm void MTX_RotX43_(struct Mtx43 *mtx, fx32 sinphi, fx32 cosphi){
 	stmia r0!, {r1,r3}
 	bx lr
 }
+#endif
 
+#ifdef __GNUC__
+THUMB_FUNC void MTX_RotY43_(struct Mtx43 *mtx, fx32 sinphi, fx32 cosphi){
+    asm("str r1, [r0, #0x18]\n\
+         mov r3, #0x0\n\
+         stmia r0!, {r2-r3}\n\
+         neg r1, r1\n\
+         stmia r0!, {r1,r3}\n\
+         mov r1, #0x1\n\
+         lsl r1, r1, #0xc\n\
+         stmia r0!, {r1,r3}\n\
+         add r0, #0x4\n\
+         mov r1, #0x0\n\
+         stmia r0!, {r1-r3}\n\
+         stmia r0!, {r1,r3}\n\
+         bx lr\n\
+         .pool");
+}
+#else
 THUMB_FUNC asm void MTX_RotY43_(struct Mtx43 *mtx, fx32 sinphi, fx32 cosphi){
     str r1, [r0, #0x18]
 	mov r3, #0x0
@@ -198,3 +293,4 @@ THUMB_FUNC asm void MTX_RotY43_(struct Mtx43 *mtx, fx32 sinphi, fx32 cosphi){
 	stmia r0!, {r1,r3}
 	bx lr
 }
+#endif

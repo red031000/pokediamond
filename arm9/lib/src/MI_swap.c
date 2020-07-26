@@ -8,9 +8,18 @@
  * but it is not linked in pokediamond.
  */
 
-asm
-u32 MI_SwapWord(register u32 setData, register vu32 * destp)
+#ifdef __GNUC__
+NAKED
+ARM_FUNC u32 MI_SwapWord(register u32 setData, register vu32 * destp)
 {
-    swp setData, setData, [destp]
+    asm("swp r0, r0, [r1]\n\
+        bx lr\n\
+        .pool");
+}
+#else
+ARM_FUNC asm u32 MI_SwapWord(register u32 setData, register vu32 * destp)
+{
+    swp r0, r0, [r1]
     bx lr
 }
+#endif

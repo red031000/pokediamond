@@ -9,7 +9,7 @@ HOSTCFLAGS = $(CFLAGS)
 HOSTCXXFLAGS = $(CXXFLAGS)
 HOST_VARS := CC=$(HOSTCC) CXX=$(HOSTCXX) CFLAGS='$(HOSTCFLAGS)' CXXFLAGS='$(HOSTCXXFLAGS)'
 
-.PHONY: clean tidy all default patch_mwasmarm
+.PHONY: clean tidy all default patch_mwasmarm gnuc
 
 # Try to include devkitarm if installed
 TOOLCHAIN := $(DEVKITARM)
@@ -52,6 +52,13 @@ ifeq ($(NOWINE),1)
 WINE :=
 endif
 
+GNUC ?= 0
+ifeq ($(GNUC),1)
+COMPARE = 0
+else
+COMPARE ?= 1
+endif
+
 ################ Target Executable and Sources ###############
 
 BUILD_DIR := build/$(BUILD_NAME)
@@ -92,7 +99,11 @@ MWASMARM = tools/mwccarm/$(MWCCVERSION)/mwasmarm.exe
 SCANINC = tools/scaninc/scaninc$(EXE)
 
 AS      = $(WINE) $(MWASMARM)
+ifeq ($(GNUC),0)
 CC      = $(WINE) $(MWCCARM)
+else
+CC      = $(CROSS)gcc
+endif
 CPP     := cpp -P
 LD      = $(WINE) $(MWLDARM)
 AR      := $(CROSS)ar
@@ -101,7 +112,11 @@ OBJCOPY := $(CROSS)objcopy
 
 # ./tools/mwccarm/2.0/base/mwasmarm.exe -proc arm5te asm/arm9_thumb.s -o arm9.o
 ASFLAGS = -proc arm5te
+ifeq ($(GNUC),0)
 CFLAGS = -O4,p -gccext,on -proc arm946e -fp soft -lang c99 -Cpp_exceptions off -i include -ir include-mw -ir arm9/lib/include -W all
+else
+CFLAGS = -std=gnu99 -mthumb -mthumb-interwork -O2 -mabi=apcs-gnu -mcpu=arm946e-s -Wall -Werror -mfloat-abi=soft -Iinclude -Iinclude-gcc -Iarm9/lib/include
+endif
 LDFLAGS = -map -nodead -w off -proc v5te -interworking -map -symtab -m _start
 
 ####################### Other Tools #########################
@@ -133,8 +148,10 @@ infoshell = $(foreach line, $(shell $1 | sed "s/ /__SPACE__/g"), $(info $(subst 
 
 # Build tools when building the rom
 # Disable dependency scanning for clean/tidy/tools
-ifeq (,$(filter-out all,$(MAKECMDGOALS)))
+ifeq (,$(filter-out all gnuc,$(MAKECMDGOALS)))
 $(call infoshell, $(HOST_VARS) $(MAKE) tools patch_mwasmarm)
+# else ifeq (,$(filter-out gnuc,$(MAKECMDGOALS)))
+# $(call infoshell, $(HOST_VARS) $(MAKE) tools)
 else
 NODEP := 1
 endif
@@ -142,7 +159,7 @@ endif
 .SECONDARY:
 .DELETE_ON_ERROR:
 .SECONDEXPANSION:
-.PHONY: all libs clean mostlyclean tidy tools clean-tools $(TOOLDIRS) patch_mwasmarm arm9 arm7
+.PHONY: all libs clean mostlyclean tidy tools clean-tools $(TOOLDIRS) patch_mwasmarm arm9 arm7 gnuc
 
 MAKEFLAGS += --no-print-directory
 
@@ -297,6 +314,8 @@ symbols.csv: arm9 arm7
 print-% : ; $(info $* is a $(flavor $*) variable set to [$($*)]) @true
 
 ### Other targets
+
+gnuc:           ; @$(HOST_VARS) $(MAKE) GNUC=1
 
 diamond:          ; @$(HOST_VARS) $(MAKE) GAME_VERSION=DIAMOND
 pearl:            ; @$(HOST_VARS) $(MAKE) GAME_VERSION=PEARL

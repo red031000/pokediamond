@@ -73,6 +73,23 @@ ARM_FUNC void MTX_Concat44(struct Mtx44 *a, struct Mtx44 *b, struct Mtx44 *c){
         *c = temp;
 }
 
+#ifdef __GNUC__
+NAKED
+ARM_FUNC void MTX_Identity44_(struct Mtx44 *dst){
+    asm("mov r2, #0x1000\n\
+         mov r3, #0x0\n\
+         stmia r0!, {r2-r3}\n\
+         mov r1, #0x0\n\
+         stmia r0!, {r1,r3}\n\
+         stmia r0!, {r1-r3}\n\
+         stmia r0!, {r1,r3}\n\
+         stmia r0!, {r1-r3}\n\
+         stmia r0!, {r1,r3}\n\
+         stmia r0!, {r1-r2}\n\
+         bx lr\n\
+         .pool");
+}
+#else
 ARM_FUNC asm void MTX_Identity44_(struct Mtx44 *dst){
     mov r2, #0x1000
     mov r3, #0x0
@@ -86,7 +103,27 @@ ARM_FUNC asm void MTX_Identity44_(struct Mtx44 *dst){
     stmia r0!, {r1-r2}
     bx lr
 }
+#endif
 
+#ifdef __GNUC__
+NAKED
+ARM_FUNC void MTX_Copy44To43_(struct Mtx44 *src, struct Mtx43 *dst){
+    asm("ldmia r0!, {r2-r3,r12}\n\
+         add r0, r0, #0x4\n\
+         stmia r1!, {r2-r3,r12}\n\
+         ldmia r0!, {r2-r3,r12}\n\
+         add r0, r0, #0x4\n\
+         stmia r1!, {r2-r3,r12}\n\
+         ldmia r0!, {r2-r3,r12}\n\
+         add r0, r0, #0x4\n\
+         stmia r1!, {r2-r3,r12}\n\
+         ldmia r0!, {r2-r3,r12}\n\
+         add r0, r0, #0x4\n\
+         stmia r1!, {r2-r3,r12}\n\
+         bx lr\n\
+         .pool");
+}
+#else
 ARM_FUNC asm void MTX_Copy44To43_(struct Mtx44 *src, struct Mtx43 *dst){
     ldmia r0!, {r2-r3,r12}
     add r0, r0, #0x4
@@ -102,8 +139,32 @@ ARM_FUNC asm void MTX_Copy44To43_(struct Mtx44 *src, struct Mtx43 *dst){
     stmia r1!, {r2-r3,r12}
     bx lr
 }
+#endif
 
-
+#ifdef __GNUC__
+NAKED
+THUMB_FUNC void MTX_RotX44_(struct Mtx44 *mtx, fx32 sinphi, fx32 cosphi){
+    asm("str r2, [r0, #0x14]\n\
+         str r2, [r0, #0x28]\n\
+         str r1, [r0, #0x18]\n\
+         neg r1, r1\n\
+         str r1, [r0, #0x24]\n\
+         mov r1, #0x1\n\
+         mov r2, #0x0\n\
+         lsl r1, r1, #0xc\n\
+         mov r3, #0x0\n\
+         stmia r0!, {r1-r3}\n\
+         stmia r0!, {r2-r3}\n\
+         add r0, #0x8\n\
+         stmia r0!, {r2-r3}\n\
+         add r0, #0x8\n\
+         stmia r0!, {r2-r3}\n\
+         stmia r0!, {r2-r3}\n\
+         str r1, [r0, #0x0]\n\
+         bx lr\n\
+         .pool");
+}
+#else
 THUMB_FUNC asm void MTX_RotX44_(struct Mtx44 *mtx, fx32 sinphi, fx32 cosphi){
     str r2, [r0, #0x14]
 	str r2, [r0, #0x28]
@@ -124,7 +185,32 @@ THUMB_FUNC asm void MTX_RotX44_(struct Mtx44 *mtx, fx32 sinphi, fx32 cosphi){
 	str r1, [r0, #0x0]
 	bx lr
 }
+#endif
 
+#ifdef __GNUC__
+NAKED
+THUMB_FUNC void MTX_RotY44_(struct Mtx44 *mtx, fx32 sinphi, fx32 cosphi){
+    asm("str r2, [r0, #0x0]\n\
+         str r2, [r0, #0x28]\n\
+         str r1, [r0, #0x20]\n\
+         neg r1, r1\n\
+         str r1, [r0, #0x8]\n\
+         mov r3, #0x1\n\
+         mov r1, #0x0\n\
+         lsl r3, r3, #0xc\n\
+         mov r2, #0x0\n\
+         str r2, [r0, #0x4]\n\
+         add r0, #0xc\n\
+         stmia r0!, {r1-r3}\n\
+         stmia r0!, {r1-r2}\n\
+         str r2, [r0, #0x4]\n\
+         add r0, #0xc\n\
+         stmia r0!, {r1-r2}\n\
+         stmia r0!, {r1-r3}\n\
+         bx lr\n\
+         .pool");
+}
+#else
 THUMB_FUNC asm void MTX_RotY44_(struct Mtx44 *mtx, fx32 sinphi, fx32 cosphi){
     str r2, [r0, #0x0]
 	str r2, [r0, #0x28]
@@ -145,7 +231,31 @@ THUMB_FUNC asm void MTX_RotY44_(struct Mtx44 *mtx, fx32 sinphi, fx32 cosphi){
 	stmia r0!, {r1-r3}
 	bx lr
 }
+#endif
 
+#ifdef __GNUC__
+NAKED
+THUMB_FUNC void MTX_RotZ44_(struct Mtx44 *mtx, fx32 sinphi, fx32 cosphi){
+    asm("str r2, [r0, #0x0]\n\
+         str r2, [r0, #0x14]\n\
+         str r1, [r0, #0x4]\n\
+         neg r1, r1\n\
+         str r1, [r0, #0x10]\n\
+         mov r3, #0x1\n\
+         mov r1, #0x0\n\
+         lsl r3, r3, #0xc\n\
+         mov r2, #0x0\n\
+         add r0, #0x8\n\
+         stmia r0!, {r1-r2}\n\
+         add r0, #0x8\n\
+         stmia r0!, {r1-r2}\n\
+         stmia r0!, {r1-r3}\n\
+         stmia r0!, {r1-r2}\n\
+         stmia r0!, {r1-r3}\n\
+         bx lr\n\
+         .pool");
+}
+#else
 THUMB_FUNC asm void MTX_RotZ44_(struct Mtx44 *mtx, fx32 sinphi, fx32 cosphi){
     str r2, [r0, #0x0]
     str r2, [r0, #0x14]
@@ -165,3 +275,4 @@ THUMB_FUNC asm void MTX_RotZ44_(struct Mtx44 *mtx, fx32 sinphi, fx32 cosphi){
     stmia r0!, {r1-r3}
     bx lr
 }
+#endif

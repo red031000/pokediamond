@@ -3,29 +3,27 @@
 #include "heap.h"
 #include "proto.h"
 
-#pragma thumb on
-
 void FUN_0206B8C0(struct PlayerParty * party);
 void FUN_0206B8CC(struct PlayerParty * party, int count);
 
-u32 FUN_0206B8A4(void)
+THUMB_FUNC u32 FUN_0206B8A4(void)
 {
     return sizeof(struct PlayerParty);
 }
 
-struct PlayerParty * FUN_0206B8AC(u32 heap_id)
+THUMB_FUNC struct PlayerParty * FUN_0206B8AC(u32 heap_id)
 {
     struct PlayerParty * ret = (struct PlayerParty *)AllocFromHeap(heap_id, sizeof(struct PlayerParty));
     FUN_0206B8C0(ret);
     return ret;
 }
 
-void FUN_0206B8C0(struct PlayerParty * party)
+THUMB_FUNC void FUN_0206B8C0(struct PlayerParty * party)
 {
     FUN_0206B8CC(party, PARTY_SIZE);
 }
 
-void FUN_0206B8CC(struct PlayerParty * party, int count)
+THUMB_FUNC void FUN_0206B8CC(struct PlayerParty * party, int count)
 {
     int i;
     GF_ASSERT(count <= PARTY_SIZE);
@@ -36,7 +34,7 @@ void FUN_0206B8CC(struct PlayerParty * party, int count)
         ZeroMonData(&party->mons[i]);
 }
 
-BOOL FUN_0206B900(struct PlayerParty * party, struct Pokemon * pokemon)
+THUMB_FUNC BOOL FUN_0206B900(struct PlayerParty * party, struct Pokemon * pokemon)
 {
     if (party->curCount >= party->maxCount)
         return FALSE;
@@ -45,7 +43,7 @@ BOOL FUN_0206B900(struct PlayerParty * party, struct Pokemon * pokemon)
     return TRUE;
 }
 
-BOOL FUN_0206B938(struct PlayerParty * party, int pos)
+THUMB_FUNC BOOL FUN_0206B938(struct PlayerParty * party, int pos)
 {
     int i;
 
@@ -64,12 +62,12 @@ BOOL FUN_0206B938(struct PlayerParty * party, int pos)
     return TRUE;
 }
 
-int GetPartyCount(struct PlayerParty * party)
+THUMB_FUNC int GetPartyCount(struct PlayerParty * party)
 {
     return party->curCount;
 }
 
-struct Pokemon * GetPartyMonByIndex(struct PlayerParty * party, int pos)
+THUMB_FUNC struct Pokemon * GetPartyMonByIndex(struct PlayerParty * party, int pos)
 {
     GF_ASSERT(pos >= 0);
     GF_ASSERT(pos < party->curCount);
@@ -77,7 +75,7 @@ struct Pokemon * GetPartyMonByIndex(struct PlayerParty * party, int pos)
     return &party->mons[pos];
 }
 
-void FUN_0206B9DC(struct PlayerParty * party, int pos, struct Pokemon * pokemon)
+THUMB_FUNC void FUN_0206B9DC(struct PlayerParty * party, int pos, struct Pokemon * pokemon)
 {
     int r2;
     GF_ASSERT(pos >= 0);
@@ -88,7 +86,7 @@ void FUN_0206B9DC(struct PlayerParty * party, int pos, struct Pokemon * pokemon)
     party->curCount += r2;
 }
 
-BOOL FUN_0206BA38(struct PlayerParty * party, int pos1, int pos2)
+THUMB_FUNC BOOL FUN_0206BA38(struct PlayerParty * party, int pos1, int pos2)
 {
     struct Pokemon * buffer;
     GF_ASSERT(pos1 >= 0);
@@ -105,12 +103,12 @@ BOOL FUN_0206BA38(struct PlayerParty * party, int pos1, int pos2)
     return FALSE;
 }
 
-void FUN_0206BAD0(struct PlayerParty * src, struct PlayerParty * dest)
+THUMB_FUNC void FUN_0206BAD0(struct PlayerParty * src, struct PlayerParty * dest)
 {
     *dest = *src;
 }
 
-BOOL PartyHasMon(struct PlayerParty * party, u16 species)
+THUMB_FUNC BOOL PartyHasMon(struct PlayerParty * party, u16 species)
 {
     int i;
     for (i = 0; i < party->curCount; i++)
@@ -121,7 +119,7 @@ BOOL PartyHasMon(struct PlayerParty * party, u16 species)
     return i != party->curCount;
 }
 
-struct PlayerParty * FUN_0206BB1C(void * ptr)
+THUMB_FUNC struct PlayerParty * FUN_0206BB1C(void * ptr)
 {
     return (struct PlayerParty *)FUN_02022610(ptr, 2);
 }

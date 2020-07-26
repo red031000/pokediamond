@@ -1,11 +1,13 @@
-//
-// Created by red031000 on 2020-04-27.
-//
 #include "function_target.h"
 #include "consts.h"
 #include "OS_arena.h"
 #include "OS_protectionRegion.h"
 #include "OS_emulator.h"
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Waddress"
+#endif
 
 static BOOL OSi_Initialized = FALSE;
 static BOOL OSi_MainExArenaEnabled = FALSE;
@@ -168,3 +170,7 @@ ARM_FUNC void* OS_AllocFromArenaHi(OSArenaId id, u32 size, u32 align) {
 
     return ptr;
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif

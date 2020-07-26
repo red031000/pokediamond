@@ -18,6 +18,13 @@ extern u32 PXI_SendWordByFifo(u32 param1, u32 data, u32 param2);
 extern void CARD_LockRom(u16 lockId);
 extern void MI_StopDma(u32 dma);
 
+static void OSi_CommonCallback(PXIFifoTag tag, u32 data, BOOL err);
+static void OSi_SendToPxi(u16 data);
+static void OSi_DoResetSystem(void);
+static void OSi_CpuClear32(register u32 data, register void *destp, register u32 size);
+static void OSi_ReloadRomData(void);
+static void OSi_ReadCardRom32(u32 src, void *dst, s32 len);
+
 ARM_FUNC void OS_InitReset(void) {
     if (OSi_IsInitReset) {
         return;
@@ -30,7 +37,9 @@ ARM_FUNC void OS_InitReset(void) {
 }
 
 ARM_FUNC static void OSi_CommonCallback(PXIFifoTag tag, u32 data, BOOL err) {
+#ifndef __GNUC__
 #pragma unused(tag, err) //needed because otherwise -W all errors
+#endif
     u16 command = (u16)((data & OS_PXI_COMMAND_MASK) >> OS_PXI_COMMAND_SHIFT);
     if (command == OS_PXI_COMMAND_RESET)
     {
@@ -60,7 +69,11 @@ ARM_FUNC void OS_ResetSystem(u32 parameter) {
     OSi_DoResetSystem();
 }
 
+#ifndef __GNUC__
 #pragma section ITCM begin
+#endif
+
+SECTION_ITCM
 ARM_FUNC static void OSi_DoResetSystem(void)
 {
     while (!OSi_IsResetOccurred) { }
@@ -70,6 +83,58 @@ ARM_FUNC static void OSi_DoResetSystem(void)
     OSi_DoBoot();
 }
 
+#ifdef __GNUC__
+NAKED SECTION_ITCM
+ARM_FUNC void OSi_DoBoot(void)
+{
+    asm("mov ip, #0x04000000\n\
+         str ip, [ip, #0x208]\n\
+         ldr r1, =SDK_AUTOLOAD_DTCM_START\n\
+         add r1, r1, #0x3fc0\n\
+         add r1, r1, #0x3c\n\
+         mov r0, #0x0\n\
+         str r0, [r1]\n\
+         ldr r1, =0x4000180\n\
+    _01FF81D4:\n\
+         ldrh r0, [r1]\n\
+         and r0, r0, #0xf\n\
+         cmp r0, #0x1\n\
+         bne _01FF81D4\n\
+         mov r0, #0x100\n\
+         strh r0, [r1]\n\
+         mov r0, #0x0\n\
+         ldr r3, =0x027ffd9c\n\
+         ldr r4, [r3]\n\
+         ldr r1, =0x027ffd80\n\
+         mov r2, #0x80\n\
+         bl OSi_CpuClear32\n\
+         str r4, [r3]\n\
+         ldr r1, =0x027fff80\n\
+         mov r2, #0x18\n\
+         bl OSi_CpuClear32\n\
+         ldr r1, =0x027fff98\n\
+         strh r0, [r1]\n\
+         ldr r1, =0x027fff9c\n\
+         mov r2, #0x64\n\
+         bl OSi_CpuClear32\n\
+         ldr r1, =0x4000180\n\
+    _01FF822C:\n\
+         ldrh r0, [r1]\n\
+         and r0, r0, #0xf\n\
+         cmp r0, #0x1\n\
+         beq _01FF822C\n\
+         mov r0, #0x0\n\
+         strh r0, [r1]\n\
+         ldr r3, =0x027ffe00\n\
+         ldr ip, [r3, #0x24]\n\
+         mov lr, ip\n\
+         ldr r11, =0x027fff80\n\
+         ldmia r11, {r0-r10}\n\
+         mov r11, #0x0\n\
+         bx ip\n\
+         .pool");
+}
+#else
 ARM_FUNC asm void OSi_DoBoot(void)
 {
     mov ip, #0x04000000
@@ -118,7 +183,21 @@ _01FF822C:
     mov r11, #0x0
     bx ip
 }
+#endif
 
+#ifdef __GNUC__
+NAKED SECTION_ITCM USED
+ARM_FUNC static void OSi_CpuClear32(register u32 data, register void *destp, register u32 size)
+{
+    asm("add ip, r1, r2\n\
+    _01FF8284:\n\
+         cmp r1, ip\n\
+         stmltia r1!, {r0}\n\
+         blt _01FF8284\n\
+         bx lr\n\
+         .pool");
+}
+#else
 ARM_FUNC static asm void OSi_CpuClear32(register u32 data, register void *destp, register u32 size)
 {
     add ip, r1, r2
@@ -128,7 +207,9 @@ _01FF8284:
     blt _01FF8284
     bx lr
 }
+#endif
 
+SECTION_ITCM
 ARM_FUNC static void OSi_ReloadRomData(void)
 {
     u32 header = (u32)HW_ROM_HEADER_BUF;
@@ -183,6 +264,7 @@ enum
     CARD_ENUM_END
 };
 
+SECTION_ITCM
 ARM_FUNC static void OSi_ReadCardRom32(u32 src, void *dst, s32 len)
 {
     vu32 *const hdr_GAME_BUF = (vu32 *)(HW_ROM_HEADER_BUF + 0x60);
@@ -231,4 +313,6 @@ ARM_FUNC static void OSi_ReadCardRom32(u32 src, void *dst, s32 len)
         }
     }
 }
+#ifndef __GNUC__
 #pragma section ITCM end
+#endif

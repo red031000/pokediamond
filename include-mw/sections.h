@@ -5,5 +5,7 @@
 #pragma define_section DTCM ".dtcm" ".dtcm.bss" abs32 RWX
 #pragma define_section VERSION ".version" abs32 RWX
 #pragma define_section PARENT ".parent" abs32 RWX
+#define SECTION_ITCM
+#define SECTION_DTCM
 
 #endif //GUARD_SECTIONS_H

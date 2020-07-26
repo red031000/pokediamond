@@ -3,8 +3,6 @@
 #include "SPI_mic.h"
 #include "SPI_pm.h"
 
-#pragma thumb on
-
 static struct SoundData sSoundDataBuffer;
 static u32 UNK_02107070[2];
 
@@ -25,7 +23,7 @@ extern void FUN_0200538C(int, int, int);
 extern BOOL FUN_02005404(void);
 extern void FUN_02005CFC(void);
 
-void InitSoundData(u32 a0, struct Options * a1)
+THUMB_FUNC void InitSoundData(u32 a0, struct Options * a1)
 {
     struct SoundData * sdat = GetSoundDataPointer();
     SDAT_Init();
@@ -41,7 +39,7 @@ void InitSoundData(u32 a0, struct Options * a1)
     FUN_02004D60(a1->unk0_4);
 }
 
-void DoSoundUpdateFrame(void)
+THUMB_FUNC void DoSoundUpdateFrame(void)
 {
     struct SoundData * sdat = GetSoundDataPointer();
     if (!FUN_02003D04())
@@ -54,7 +52,7 @@ void DoSoundUpdateFrame(void)
     FUN_020C01A0();
 }
 
-void FUN_02003C40(void)
+THUMB_FUNC void FUN_02003C40(void)
 {
     struct SoundData * sdat = GetSoundDataPointer();
     switch (UNK_02107070[0])
@@ -88,14 +86,14 @@ void FUN_02003C40(void)
     }
 }
 
-void FUN_02003CE8(int a0)
+THUMB_FUNC void FUN_02003CE8(int a0)
 {
     struct SoundData * sdat = GetSoundDataPointer();
     sdat->unk_BCCFC = 0;
     UNK_02107070[0] = (u32)a0;
 }
 
-BOOL FUN_02003D04(void)
+THUMB_FUNC BOOL FUN_02003D04(void)
 {
     struct SoundData * sdat = GetSoundDataPointer();
     if (FUN_020048BC(2))
@@ -103,12 +101,12 @@ BOOL FUN_02003D04(void)
     return sdat->unk_BCD12 != 0;
 }
 
-struct SoundData * GetSoundDataPointer(void)
+THUMB_FUNC struct SoundData * GetSoundDataPointer(void)
 {
     return &sSoundDataBuffer;
 }
 
-void * FUN_02003D38(u32 a0)
+THUMB_FUNC void * FUN_02003D38(u32 a0)
 {
     struct SoundData * sdat = GetSoundDataPointer();
     switch (a0)
@@ -199,7 +197,7 @@ void * FUN_02003D38(u32 a0)
     }
 }
 
-int FUN_02003F3C(int * a0)
+THUMB_FUNC int FUN_02003F3C(int * a0)
 {
     struct SoundData * sdat = GetSoundDataPointer();
     int r4 = FUN_020C290C(sdat->unk_00090);
@@ -209,43 +207,43 @@ int FUN_02003F3C(int * a0)
     return r4;
 }
 
-void FUN_02003F64(int a0)
+THUMB_FUNC void FUN_02003F64(int a0)
 {
     struct SoundData * sdat = GetSoundDataPointer();
     FUN_020C2828(sdat->unk_00090, a0);
 }
 
-BOOL FUN_02003F78(u32 * a0)
+THUMB_FUNC BOOL FUN_02003F78(u32 * a0)
 {
     struct SoundData * sdat = GetSoundDataPointer();
     return FUN_020C36A8(a0, sdat->unk_00090);
 }
 
-BOOL FUN_02003F90(u32 * a0)
+THUMB_FUNC BOOL FUN_02003F90(u32 * a0)
 {
     struct SoundData * sdat = GetSoundDataPointer();
     return FUN_020C3674(a0, sdat->unk_00090);
 }
 
-BOOL FUN_02003FA8(u32 * a0, u32 * a1)
+THUMB_FUNC BOOL FUN_02003FA8(u32 * a0, u32 * a1)
 {
     struct SoundData * sdat = GetSoundDataPointer();
     return FUN_020C35E0(a0, a1, sdat->unk_00090);
 }
 
-BOOL FUN_02003FC4(u32 * a0)
+THUMB_FUNC BOOL FUN_02003FC4(u32 * a0)
 {
     struct SoundData * sdat = GetSoundDataPointer();
     return FUN_020C360C(a0, sdat->unk_00090);
 }
 
-BOOL FUN_02003FDC(u32 * a0)
+THUMB_FUNC BOOL FUN_02003FDC(u32 * a0)
 {
     struct SoundData * sdat = GetSoundDataPointer();
     return FUN_020C3640(a0, sdat->unk_00090);
 }
 
-u32 * FUN_02003FF4(int a0)
+THUMB_FUNC u32 * FUN_02003FF4(int a0)
 {
     struct SoundData * sdat = GetSoundDataPointer();
     if (a0 >= 9)
@@ -256,7 +254,7 @@ u32 * FUN_02003FF4(int a0)
     return &sdat->unk_BBC94[a0];
 }
 
-u32 FUN_02004018(u32 a0)
+THUMB_FUNC u32 FUN_02004018(u32 a0)
 {
     switch (a0)
     {
@@ -282,7 +280,7 @@ u32 FUN_02004018(u32 a0)
     }
 }
 
-void FUN_02004064(struct SoundData * sdat)
+THUMB_FUNC void FUN_02004064(struct SoundData * sdat)
 {
     int i;
     memset(sdat, 0, sizeof(*sdat));
@@ -290,7 +288,7 @@ void FUN_02004064(struct SoundData * sdat)
         sdat->unk_BCD1C[i] = i + 1;
 }
 
-void FUN_02004088(struct SoundData * sdat)
+THUMB_FUNC void FUN_02004088(struct SoundData * sdat)
 {
     int i;
     for (i = 0; i < 9; i++)
@@ -299,21 +297,21 @@ void FUN_02004088(struct SoundData * sdat)
     }
 }
 
-void FUN_020040A4(struct SoundData * sdat)
+THUMB_FUNC void FUN_020040A4(struct SoundData * sdat)
 {
     FUN_02003F3C(&sdat->unk_BCD1C[0]);
     FUN_02003F78(NULL);
     FUN_02003F3C(&sdat->unk_BCD1C[1]);
 }
 
-void FUN_020040C8(void)
+THUMB_FUNC void FUN_020040C8(void)
 {
     MIC_Init();
     PM_SetAmp(1);
     PM_SetAmpGain(2);
 }
 
-void FUN_020040DC(void)
+THUMB_FUNC void FUN_020040DC(void)
 {
     FUN_020C1040(7, 0);
     FUN_02003FF4(7);

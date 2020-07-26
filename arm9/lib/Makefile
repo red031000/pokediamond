@@ -28,7 +28,12 @@ WINE :=
 endif
 
 # Compare result of arm9, arm7, and ROM to sha1 hash(s)
+GNUC ?= 0
+ifeq ($(GNUC),1)
+COMPARE = 0
+else
 COMPARE ?= 1
+endif
 
 ##################### Compiler Options #######################
 
@@ -47,7 +52,11 @@ MWASMARM = ../../tools/mwccarm/$(MWCCVERSION)/mwasmarm.exe
 SCANINC = ../../tools/scaninc/scaninc$(EXE)
 
 AS      = $(WINE) $(MWASMARM)
+ifeq ($(GNUC),0)
 CC      = $(WINE) $(MWCCARM)
+else
+CC      = $(CROSS)gcc
+endif
 CPP     := cpp -P
 LD      = $(WINE) $(MWLDARM)
 AR      := $(CROSS)ar
@@ -56,7 +65,11 @@ OBJCOPY := $(CROSS)objcopy
 
 # ./tools/mwccarm/2.0/base/mwasmarm.exe -proc arm5te asm/arm9_thumb.s -o arm9.o
 ASFLAGS = -proc arm5te -ir ../..
+ifeq ($(GNUC),0)
 CFLAGS = -O4,p -proc arm946e -fp soft -lang c99 -Cpp_exceptions off -i include -ir include-mw -ir arm9/lib/include -W all
+else
+CFLAGS = -std=gnu99 -mthumb -mthumb-interwork -O2 -mabi=apcs-gnu -mcpu=arm946e-s -Wall -Werror -mfloat-abi=soft -Iinclude -Iinclude-gcc -Iarm9/lib/include
+endif
 LDFLAGS = -library -nodead -w off -proc v5te -interworking -pic
 ARFLAGS = rcS
 
@@ -65,7 +78,7 @@ export MWCIncludes := include
 ################ Targets #################
 
 LIBS := libsyscall.a
-.PHONY: all clean
+.PHONY: all clean gnuc
 
 all: $(LIBS)
 	@:
@@ -83,3 +96,5 @@ libsyscall.a: syscall/_svc_mw.o
 
 %.o: %.s
 	$(AS) $(ASFLAGS) -o $@ $<
+
+gnuc:           ; @$(MAKE) GNUC=1

@@ -55,6 +55,7 @@ ARM_FUNC FSResult FSi_ReadTable(FSiSyncReadParam * p, void * dst, u32 len)
         (void)OS_RestoreInterrupts(bak_psr);
         ret = p_arc->list.next->error;
     }
+    default:
         break;
     }
     p->pos += len;
@@ -447,6 +448,8 @@ ARM_FUNC FSResult FSi_OpenFileDirectCommand(FSFile * p_file)
 
 ARM_FUNC FSResult FSi_CloseFileCommand(FSFile * p_file)
 {
+#ifndef __GNUC__
 #pragma unused (p_file)
+#endif
     return FS_RESULT_SUCCESS;
 }

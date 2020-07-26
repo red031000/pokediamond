@@ -8,6 +8,11 @@
 #include "OS_terminate_proc.h"
 #include "consts.h"
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
 extern void SDK_SYS_STACKSIZE(void);
 extern void SDK_IRQ_STACKSIZE(void);
 
@@ -31,6 +36,19 @@ OSThread OSi_LauncherThread;
 OSThread OSi_IdleThread;
 
 u32 OSi_IdleThreadStack[50];
+
+static s32 OSi_GetUnusedThreadId(void);
+static void OSi_InsertLinkToQueue(OSThreadQueue *queue, OSThread *thread);
+static OSThread *OSi_RemoveLinkFromQueue(OSThreadQueue *queue);
+static OSThread *OSi_RemoveSpecifiedLinkFromQueue(OSThreadQueue *queue, OSThread *thread);
+static void OSi_InsertThreadToList(OSThread *thread);
+static void OSi_RemoveThreadFromList(OSThread *thread);
+static void OSi_ExitThread_ArgSpecified(OSThread *thread, void *arg);
+static void OSi_ExitThread(void *arg);
+static void OSi_ExitThread_Destroy(void);
+static void OSi_CancelThreadAlarmForSleep(OSThread *thread);
+static void OSi_SleepAlarmCallback(void *arg);
+static void OSi_IdleThreadProc(void *arg);
 
 ARM_FUNC static s32 OSi_GetUnusedThreadId(void)
 {
@@ -299,12 +317,23 @@ ARM_FUNC void OS_InitThread(void)
     OSi_IdleThread.state = OS_THREAD_STATE_READY;
 }
 
+#ifdef __GNUC__
+NAKED
+ARM_FUNC BOOL OS_IsThreadAvailable(void)
+{
+    asm("ldr r0, =OSi_IsThreadInitialized\n\
+         ldr r0, [r0, #0]\n\
+         bx lr\n\
+         .pool");
+}
+#else
 ARM_FUNC asm BOOL OS_IsThreadAvailable(void)
 {
     ldr r0, =OSi_IsThreadInitialized
     ldr r0, [r0, #0]
     bx lr
 }
+#endif
 
 ARM_FUNC void OS_CreateThread(OSThread *thread, void (*func) (void *), void *arg, void *stack, u32 stackSize, u32 prio)
 {
@@ -677,7 +706,7 @@ ARM_FUNC OSSwitchThreadCallback OS_SetSwitchThreadCallback(OSSwitchThreadCallbac
     return prev;
 }
 
-ARM_FUNC static void OSi_IdleThreadProc(void *)
+ARM_FUNC static void OSi_IdleThreadProc(void *arg)
 {
     (void)OS_EnableInterrupts();
     while (1)
@@ -718,3 +747,7 @@ ARM_FUNC void OS_SetThreadDestructor(OSThread *thread, OSThreadDestructor dtor)
 {
     thread->destructor = dtor;
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif

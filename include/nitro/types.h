@@ -54,6 +54,10 @@ typedef int BOOL;
 #endif // __cplusplus
 #endif
 
+#ifdef __GNUC__
+#define SDK_FORCE_EXPORT
+#else
 #define SDK_FORCE_EXPORT __declspec(force_export)
+#endif
 
 #endif //POKEDIAMOND_TYPES_H

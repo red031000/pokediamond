@@ -2,7 +2,7 @@
 
 include ../config.mk
 
-.PHONY: clean tidy all default patch_mwasmarm
+.PHONY: clean tidy all default patch_mwasmarm gnuc
 
 # Try to include devkitarm if installed
 TOOLCHAIN := $(DEVKITARM)
@@ -33,6 +33,13 @@ endif
 
 ifeq ($(NOWINE),1)
 WINE :=
+endif
+
+GNUC ?= 0
+ifeq ($(GNUC),1)
+COMPARE = 0
+else
+COMPARE ?= 1
 endif
 
 ################ Target Executable and Sources ###############
@@ -92,7 +99,11 @@ MWASMARM = $(TOOLS_DIR)/mwccarm/$(MWCCVERSION)/mwasmarm.exe
 MAKELCF := $(WINE) $(TOOLS_DIR)/bin/makelcf.exe
 
 AS      = $(WINE) $(MWASMARM)
+ifeq ($(GNUC),0)
 CC      = $(WINE) $(MWCCARM)
+else
+CC      = $(CROSS)gcc
+endif
 CXX     = $(WINE) $(MWCCARM)
 CPP     := cpp -P
 LD      = $(WINE) $(MWLDARM)
@@ -102,7 +113,11 @@ OBJCOPY := $(CROSS)objcopy
 
 # ./tools/mwccarm/2.0/base/mwasmarm.exe -proc arm5te asm/arm9_thumb.s -o arm9.o
 ASFLAGS = -proc arm5te -i ../include -i .. -D$(GAME_VERSION) -D$(GAME_LANGUAGE)
+ifeq ($(GNUC),0)
 CFLAGS = -O4,p -gccext,on -proc arm946e -fp soft -lang c99 -Cpp_exceptions off -i ../include -ir ../include-mw -ir lib/include -interworking -DFS_IMPLEMENT -enum int -W all -D$(GAME_VERSION) -D$(GAME_LANGUAGE)
+else
+CFLAGS = -std=gnu99 -mthumb -mthumb-interwork -O2 -mabi=apcs-gnu -mcpu=arm946e-s -Wall -Werror -mfloat-abi=soft -I../include -I../include-gcc -Ilib/include -DFS_IMPLEMENT -D$(GAME_VERSION) -D$(GAME_LANGUAGE)
+endif
 CXXFLAGS = -O4,p -proc arm946e -fp soft -lang c99 -Cpp_exceptions off -i ../include -ir ../include-mw -ir lib/include -interworking -DFS_IMPLEMENT -enum int -W all -D$(GAME_VERSION) -D$(GAME_LANGUAGE)
 LDFLAGS = -nodead -w off -proc v5te -interworking -map closure,unused -symtab sort -m _start
 LIBS := -Llib -lsyscall
@@ -136,14 +151,16 @@ infoshell = $(foreach line, $(shell $1 | sed "s/ /__SPACE__/g"), $(info $(subst 
 
 # Build tools when building the rom
 # Disable dependency scanning for clean/tidy/tools
-ifeq (,$(filter-out all,$(MAKECMDGOALS)))
+ifeq (,$(filter-out all gnuc,$(MAKECMDGOALS)))
 $(call infoshell, $(MAKE) tools patch_mwasmarm)
+# else ifeq (,$(filter-out gnuc,$(MAKECMDGOALS)))
+# $(call infoshell, $(MAKE) tools)
 else
 NODEP := 1
 endif
 
 .PRECIOUS: $(ROM)
-.PHONY: all clean mostlyclean tidy tools $(TOOLDIRS) patch_mwasmarm
+.PHONY: all clean mostlyclean tidy tools $(TOOLDIRS) patch_mwasmarm gnuc
 
 MAKEFLAGS += --no-print-directory
 
@@ -237,3 +254,5 @@ DUMMY != mkdir -p $(ALL_DIRS)
 ### Debug Print ###
 
 print-% : ; $(info $* is a $(flavor $*) variable set to [$($*)]) @true
+
+gnuc:           ; @$(MAKE) GNUC=1

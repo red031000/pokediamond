@@ -2,8 +2,10 @@
 #include "sections.h"
 #include "OS_irqTable.h"
 
+#ifndef __GNUC__
 #pragma section DTCM begin
-OSIrqFunction OS_IRQTable[22] = {
+#endif
+OSIrqFunction OS_IRQTable[22] SECTION_DTCM = {
         OS_IrqDummy,
         OS_IrqDummy,
         OS_IrqDummy,
@@ -27,7 +29,9 @@ OSIrqFunction OS_IRQTable[22] = {
         OS_IrqDummy,
         OS_IrqDummy
 };
+#ifndef __GNUC__
 #pragma section DTCM end
+#endif
 
 OSIrqCallbackInfo OSi_IrqCallbackInfo[8] = {
         {NULL, 0, 0},

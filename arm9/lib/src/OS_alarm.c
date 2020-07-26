@@ -10,6 +10,10 @@ static struct OSiAlarmQueue OSi_AlarmQueue;
 
 static u16 OSi_UseAlarm = FALSE;
 
+static void OSi_SetTimer(OSAlarm *alarm);
+static void OSi_InsertAlarm(OSAlarm *alarm, OSTick fire);
+static void OSi_ArrangeTimer(void);
+
 ARM_FUNC static void OSi_SetTimer(OSAlarm *alarm)
 {
     OSTick tick = OS_GetTick();
@@ -182,6 +186,17 @@ ARM_FUNC void OS_CancelAlarm(OSAlarm *alarm)
     (void)OS_RestoreInterrupts(enabled);
 }
 
+#ifdef __GNUC__
+NAKED
+ARM_FUNC void OSi_AlarmHandler(void *arg)
+{
+    asm("stmfd sp!, {r0, lr}\n\
+         bl OSi_ArrangeTimer\n\
+         ldmfd sp!, {r0, lr}\n\
+         bx lr\n\
+         .pool");
+}
+#else
 ARM_FUNC asm void OSi_AlarmHandler(void *arg)
 {
     stmfd sp!, {r0, lr}
@@ -189,7 +204,9 @@ ARM_FUNC asm void OSi_AlarmHandler(void *arg)
     ldmfd sp!, {r0, lr}
     bx lr
 }
+#endif
 
+USED
 ARM_FUNC static void OSi_ArrangeTimer(void)
 {
     OS_SetTimerControl(OS_TIMER_1, 0);

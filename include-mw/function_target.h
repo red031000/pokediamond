@@ -8,4 +8,9 @@
 #define ENUMS_ALWAYS_INT_OFF _Pragma("enumsalwaysint off")
 #define ENUMS_ALWAYS_INT_RESET _Pragma("enumsalwaysint reset")
 
+#define UNUSED
+#define USED
+//to stop it complaining
+#define NAKED
+
 #endif //GUARD_FUNCTION_TARGET_H

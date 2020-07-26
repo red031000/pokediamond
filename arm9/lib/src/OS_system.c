@@ -1,36 +1,88 @@
-//
-// Created by mart on 4/23/20.
-//
-
 #include "OS_system.h"
 #include "OS_irqHandler.h"
 #include "syscall.h"
+#include "consts.h"
 
-ARM_FUNC asm OSIntrMode OS_EnableInterrupts(void) {
+#ifdef __GNUC__
+NAKED
+ARM_FUNC OSIntrMode OS_EnableInterrupts(void)
+{
+    asm("mrs r0, cpsr\n\
+         bic r1, r0, #0x80\n\
+         msr cpsr_c, r1\n\
+         and r0, r0, #0x80\n\
+         bx lr\n\
+         .pool");
+}
+#else
+ARM_FUNC asm OSIntrMode OS_EnableInterrupts(void)
+{
     mrs r0, cpsr
     bic r1, r0, #HW_PSR_DISABLE_IRQ
     msr cpsr_c, r1
     and r0, r0, #HW_PSR_DISABLE_IRQ
     bx lr
 }
+#endif
 
-ARM_FUNC asm OSIntrMode OS_DisableInterrupts(void) {
-    mrs     r0, cpsr
-    orr     r1, r0, #HW_PSR_DISABLE_IRQ
-    msr     cpsr_c, r1
-    and     r0, r0, #HW_PSR_DISABLE_IRQ
-    bx      lr
+#ifdef __GNUC__
+NAKED
+ARM_FUNC OSIntrMode OS_DisableInterrupts(void)
+{
+    asm("mrs r0, cpsr\n\
+         orr r1, r0, #0x80\n\
+         msr cpsr_c, r1\n\
+         and r0, r0, #0x80\n\
+         bx lr\n\
+         .pool");
 }
-
-ARM_FUNC asm OSIntrMode OS_RestoreInterrupts(OSIntrMode state) {
-    mrs     r1, cpsr
-    bic     r2, r1, #HW_PSR_DISABLE_IRQ
-    orr     r2, r2, r0
-    msr     cpsr_c, r2
-    and     r0, r1, #HW_PSR_DISABLE_IRQ
-    bx      lr
+#else
+ARM_FUNC asm OSIntrMode OS_DisableInterrupts(void)
+{
+    mrs r0, cpsr
+    orr r1, r0, #HW_PSR_DISABLE_IRQ
+    msr cpsr_c, r1
+    and r0, r0, #HW_PSR_DISABLE_IRQ
+    bx lr
 }
+#endif
 
+#ifdef __GNUC__
+NAKED
+ARM_FUNC OSIntrMode OS_RestoreInterrupts(OSIntrMode state)
+{
+    asm("mrs r1, cpsr\n\
+         bic r2, r1, #0x80\n\
+         orr r2, r2, r0\n\
+         msr cpsr_c, r2\n\
+         and r0, r1, #0x80\n\
+         bx lr\n\
+         .pool");
+}
+#else
+ARM_FUNC asm OSIntrMode OS_RestoreInterrupts(OSIntrMode state)
+{
+    mrs r1, cpsr
+    bic r2, r1, #HW_PSR_DISABLE_IRQ
+    orr r2, r2, r0
+    msr cpsr_c, r2
+    and r0, r1, #HW_PSR_DISABLE_IRQ
+    bx lr
+}
+#endif
+
+#ifdef __GNUC__
+NAKED
+ARM_FUNC OSIntrMode OS_DisableInterrupts_IrqAndFiq(void)
+{
+    asm("mrs r0, cpsr\n\
+         orr r1, r0, #0xc0\n\
+         msr cpsr_c, r1\n\
+         and r0, r0, #0xc0\n\
+         bx lr\n\
+         .pool");
+}
+#else
 ARM_FUNC asm OSIntrMode OS_DisableInterrupts_IrqAndFiq(void) {
     mrs r0, cpsr
     orr r1, r0, #HW_PSR_DISABLE_IRQ_FIQ
@@ -38,8 +90,23 @@ ARM_FUNC asm OSIntrMode OS_DisableInterrupts_IrqAndFiq(void) {
     and r0, r0, #HW_PSR_DISABLE_IRQ_FIQ
     bx lr
 }
+#endif
 
-ARM_FUNC asm OSIntrMode OS_RestoreInterrupts_IrqAndFiq(OSIntrMode state) {
+#ifdef __GNUC__
+NAKED
+ARM_FUNC OSIntrMode OS_RestoreInterrupts_IrqAndFiq(OSIntrMode state)
+{
+    asm("mrs r1, cpsr\n\
+         bic r2, r1, #0xc0\n\
+         orr r2, r2, r0\n\
+         msr cpsr_c, r2\n\
+         and r0, r1, #0xc0\n\
+         bx lr\n\
+         .pool");
+}
+#else
+ARM_FUNC asm OSIntrMode OS_RestoreInterrupts_IrqAndFiq(OSIntrMode state)
+{
     mrs r1, cpsr
     bic r2, r1, #HW_PSR_DISABLE_IRQ_FIQ
     orr r2, r2, r0
@@ -47,24 +114,61 @@ ARM_FUNC asm OSIntrMode OS_RestoreInterrupts_IrqAndFiq(OSIntrMode state) {
     and r0, r1, #HW_PSR_DISABLE_IRQ_FIQ
     bx lr
 }
+#endif
 
-ARM_FUNC asm OSIntrMode OS_GetCpsrIrq(void) {
+#ifdef __GNUC__
+NAKED
+ARM_FUNC OSIntrMode OS_GetCpsrIrq(void)
+{
+    asm("mrs r0, cpsr\n\
+         and r0, r0, #0x80\n\
+         bx lr\n\
+         .pool");
+}
+#else
+ARM_FUNC asm OSIntrMode OS_GetCpsrIrq(void)
+{
     mrs r0, cpsr
     and r0, r0, #HW_PSR_DISABLE_IRQ
     bx lr
 }
+#endif
 
-ARM_FUNC asm OSProcMode OS_GetProcMode(void) {
+#ifdef __GNUC__
+NAKED
+ARM_FUNC OSProcMode OS_GetProcMode(void)
+{
+    asm("mrs r0, cpsr\n\
+         and r0, r0, #0x1f\n\
+         bx lr\n\
+         .pool");
+}
+#else
+ARM_FUNC asm OSProcMode OS_GetProcMode(void)
+{
     mrs r0, cpsr
     and r0, r0, #HW_PSR_CPU_MODE_MASK
     bx lr
 }
+#endif
 
-ARM_FUNC asm void OS_SpinWait(u32 cycles) {
+#ifdef __GNUC__
+NAKED
+ARM_FUNC void OS_SpinWait(u32 cycles)
+{
+    asm("subs r0, r0, #0x4\n\
+         bhs OS_SpinWait\n\
+         bx lr\n\
+         .pool");
+}
+#else
+ARM_FUNC asm void OS_SpinWait(u32 cycles)
+{
     subs r0, r0, #0x4
     bhs OS_SpinWait
     bx lr
 }
+#endif
 
 ARM_FUNC void OS_WaitVBlankIntr(void) {
     SVC_WaitByLoop(0x1);

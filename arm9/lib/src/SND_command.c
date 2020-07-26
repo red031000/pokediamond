@@ -132,7 +132,7 @@ ARM_FUNC struct SNDCommand *SND_AllocCommand(u32 flags) {
 ARM_FUNC void SND_PushCommand(struct SNDCommand *cmd) {
     OSIntrMode oldirq = OS_DisableInterrupts();
 
-    struct SNDCommand *newend = cmd;
+    struct SNDCommand *newend UNUSED = cmd;
     if (sReserveListEnd == NULL) {
         sReserveList = cmd;
         sReserveListEnd = cmd;
@@ -281,7 +281,9 @@ ARM_FUNC s32 SND_CountWaitingCommand(void) {
 }
 
 ARM_FUNC static void PxiFifoCallback(s32 a, s32 b) {
+#ifndef __GNUC__
 #pragma unused (a)
+#endif
     OSIntrMode oldirq = OS_DisableInterrupts();
     SNDi_CallAlarmHandler(b);
     (void)OS_RestoreInterrupts(oldirq);

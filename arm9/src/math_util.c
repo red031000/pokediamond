@@ -1,6 +1,11 @@
 #include "global.h"
 #include "math_util.h"
 
+#ifdef __GNUC__
+#pragma GCC push_options
+#pragma GCC optimize ("O1")
+#endif
+
 extern const s16 UNK_020FFA38[]; // temporary until further notice
 
 /*
@@ -258,8 +263,8 @@ static u32 sMTRNG_State[624]; // Mersenne Twister seed storage/buffer
 static union
 {
     u32 LC_State; // Linear-congruential seed storage/buffer
-    u32 MTRNG_State[]; // Don't bother asking why Game Freak did this. Just don't.
-} sRNGHack;
+    u32 MTRNG_State[0]; // Don't bother asking why Game Freak did this. Just don't.
+} sRNGHack; //todo this is UB
 
 // Returns the Linear-congruential buffer in full.
 THUMB_FUNC u32 GetLCRNGSeed()
@@ -409,3 +414,7 @@ THUMB_FUNC s32 MathUtil_0201BC84(u16 arg0, s32 arg1)
     return (arg1 * 65535) /
         (FX32_MUL((arg0 * 2) << FX32_INT_SHIFT, FX32_CONST(3.140f)) >> FX32_INT_SHIFT);
 }
+
+#ifdef __GNUC__
+#pragma GCC pop_options
+#endif

@@ -67,6 +67,21 @@ ARM_FUNC void MTX_MultVec33(struct Vecx32 *vec, struct Mtx33 *mtx, struct Vecx32
     dst->z = (fx32)(((fx64)x * mtx->_[2] + (fx64)y * mtx->_[5] + (fx64)z * mtx->_[8]) >> FX32_INT_SHIFT);
 }
 
+#ifdef __GNUC__
+NAKED
+ARM_FUNC void MTX_Identity33_(struct Mtx33 *mtx) {
+    asm("mov r2, #0x1000\n\
+         str r2, [r0, #0x20]\n\
+         mov r3, #0x0\n\
+         stmia r0!, {r2-r3}\n\
+         mov r1, #0x0\n\
+         stmia r0!, {r1, r3}\n\
+         stmia r0!, {r2-r3}\n\
+         stmia r0!, {r1, r3}\n\
+         bx lr\n\
+         .pool");
+}
+#else
 ARM_FUNC asm void MTX_Identity33_(struct Mtx33 *mtx){
     mov r2, #0x1000
     str r2, [r0, #0x20]
@@ -78,7 +93,28 @@ ARM_FUNC asm void MTX_Identity33_(struct Mtx33 *mtx){
     stmia r0!, {r1,r3}
     bx lr
 }
+#endif
 
+#ifdef __GNUC__
+NAKED
+THUMB_FUNC void MTX_RotX33_(struct Mtx33 *mtx, fx32 sinphi, fx32 cosphi){
+    asm("mov r3, #0x1\n\
+        lsl r3, r3, #0xc\n\
+        str r3, [r0, #0x0]\n\
+        mov r3, #0x0\n\
+        str r3, [r0, #0x4]\n\
+        str r3, [r0, #0x8]\n\
+        str r3, [r0, #0xc]\n\
+        str r2, [r0, #0x10]\n\
+        str r1, [r0, #0x14]\n\
+        str r3, [r0, #0x18]\n\
+        neg r1, r1\n\
+        str r1, [r0, #0x1c]\n\
+        str r2, [r0, #0x20]\n\
+        bx lr\n\
+        .pool");
+}
+#else
 THUMB_FUNC asm void MTX_RotX33_(struct Mtx33 *mtx, fx32 sinphi, fx32 cosphi){
     mov r3, #0x1
 	lsl r3, r3, #0xc
@@ -95,7 +131,28 @@ THUMB_FUNC asm void MTX_RotX33_(struct Mtx33 *mtx, fx32 sinphi, fx32 cosphi){
 	str r2, [r0, #0x20]
 	bx lr
 }
+#endif
 
+#ifdef __GNUC__
+NAKED
+THUMB_FUNC void MTX_RotY33_(struct Mtx33 *mtx, fx32 sinphi, fx32 cosphi){
+    asm("str r2, [r0, #0x0]\n\
+        str r2, [r0, #0x20]\n\
+        mov r3, #0x0\n\
+        str r3, [r0, #0x4]\n\
+        str r3, [r0, #0xc]\n\
+        str r3, [r0, #0x14]\n\
+        str r3, [r0, #0x1c]\n\
+        neg r2, r1\n\
+        mov r3, #0x1\n\
+        lsl r3, r3, #0xc\n\
+        str r1, [r0, #0x18]\n\
+        str r2, [r0, #0x8]\n\
+        str r3, [r0, #0x10]\n\
+        bx lr\n\
+        .pool");
+}
+#else
 THUMB_FUNC asm void MTX_RotY33_(struct Mtx33 *mtx, fx32 sinphi, fx32 cosphi){
     str r2, [r0, #0x0]
 	str r2, [r0, #0x20]
@@ -112,7 +169,26 @@ THUMB_FUNC asm void MTX_RotY33_(struct Mtx33 *mtx, fx32 sinphi, fx32 cosphi){
 	str r3, [r0, #0x10]
 	bx lr
 }
+#endif
 
+#ifdef __GNUC__
+NAKED
+THUMB_FUNC void MTX_RotZ33_(struct Mtx33 *mtx, fx32 sinphi, fx32 cosphi){
+    asm("stmia r0!, {r2}\n\
+         mov r3, #0x0\n\
+         stmia r0!, {r1,r3}\n\
+         neg r1, r1\n\
+         stmia r0!, {r1-r2}\n\
+         mov r1, #0x1\n\
+         lsl r1, r1, #0xc\n\
+         str r3, [r0, #0x0]\n\
+         str r3, [r0, #0x4]\n\
+         str r3, [r0, #0x8]\n\
+         str r1, [r0, #0xc]\n\
+         bx lr\n\
+         .pool");
+}
+#else
 THUMB_FUNC asm void MTX_RotZ33_(struct Mtx33 *mtx, fx32 sinphi, fx32 cosphi){
     stmia r0!, {r2}
 	mov r3, #0x0
@@ -127,3 +203,4 @@ THUMB_FUNC asm void MTX_RotZ33_(struct Mtx33 *mtx, fx32 sinphi, fx32 cosphi){
 	str r1, [r0, #0xc]
 	bx lr
 }
+#endif

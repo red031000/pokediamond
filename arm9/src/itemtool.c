@@ -4,8 +4,6 @@
 #include "heap.h"
 #include "constants/moves.h"
 
-#pragma thumb on
-
 static const u16 sMailIdxs[] = {
     ITEM_GRASS_MAIL,
     ITEM_FLAME_MAIL,
@@ -664,7 +662,7 @@ static const u16 sItemIndexMappings[][4] = {
     {   441,   600,   601,     0 },
 };
 
-void MoveItemSlotInList(struct ItemSlot * itemSlots, u16 from, u16 to)
+THUMB_FUNC void MoveItemSlotInList(struct ItemSlot * itemSlots, u16 from, u16 to)
 {
     if (from != to)
     {
@@ -689,7 +687,7 @@ void MoveItemSlotInList(struct ItemSlot * itemSlots, u16 from, u16 to)
     }
 }
 
-u16 GetItemIndexMapping(u16 a0, u16 a1)
+THUMB_FUNC u16 GetItemIndexMapping(u16 a0, u16 a1)
 {
     switch (a1)
     {
@@ -721,7 +719,7 @@ u16 GetItemIndexMapping(u16 a0, u16 a1)
     return 0;
 }
 
-u16 UpConvertItemId_Gen3to4(u16 a0)
+THUMB_FUNC u16 UpConvertItemId_Gen3to4(u16 a0)
 {
     u16 i;
     for (i = 1; i <= NELEMS(sItemIndexMappings) - 1; i++)
@@ -732,17 +730,17 @@ u16 UpConvertItemId_Gen3to4(u16 a0)
     return 0;
 }
 
-int FUN_0206E708()
+THUMB_FUNC int FUN_0206E708()
 {
     return 1;
 }
 
-int FUN_0206E70C()
+THUMB_FUNC int FUN_0206E70C()
 {
     return 0;
 }
 
-void * LoadItemDataOrGfx(u16 a0, u16 a1, u32 heap_id)
+THUMB_FUNC void * LoadItemDataOrGfx(u16 a0, u16 a1, u32 heap_id)
 {
     if (a0 > NELEMS(sItemIndexMappings) - 1)
         a0 = 0;
@@ -759,21 +757,21 @@ void * LoadItemDataOrGfx(u16 a0, u16 a1, u32 heap_id)
     }
 }
 
-void GetItemNameIntoString(struct String * dest, u16 item_id, u32 heap_no)
+THUMB_FUNC void GetItemNameIntoString(struct String * dest, u16 item_id, u32 heap_no)
 {
     struct MsgData * msgData = NewMsgDataFromNarc(1, NARC_MSGDATA_MSG, 344, heap_no);
     ReadMsgDataIntoString(msgData, item_id, dest);
     DestroyMsgData(msgData);
 }
 
-void GetItemDescIntoString(struct String * dest, u16 item_id, u32 heap_no)
+THUMB_FUNC void GetItemDescIntoString(struct String * dest, u16 item_id, u32 heap_no)
 {
     struct MsgData * msgData = NewMsgDataFromNarc(1, NARC_MSGDATA_MSG, 343, heap_no);
     ReadMsgDataIntoString(msgData, item_id, dest);
     DestroyMsgData(msgData);
 }
 
-u32 GetItemAttr(u16 item, u32 attr, u32 heap_id)
+THUMB_FUNC u32 GetItemAttr(u16 item, u32 attr, u32 heap_id)
 {
     u32 ret;
     struct ItemData * itemData = (struct ItemData *)LoadItemDataOrGfx(item, 0, heap_id);
@@ -782,7 +780,7 @@ u32 GetItemAttr(u16 item, u32 attr, u32 heap_id)
     return ret;
 }
 
-u32 GetItemAttr_PreloadedItemData(struct ItemData * itemData, u32 attr)
+THUMB_FUNC u32 GetItemAttr_PreloadedItemData(struct ItemData * itemData, u32 attr)
 {
     switch (attr)
     {
@@ -829,7 +827,7 @@ u32 GetItemAttr_PreloadedItemData(struct ItemData * itemData, u32 attr)
     }
 }
 
-u32 GetItemAttrSub(struct ItemDataSub * sub, u32 attr)
+THUMB_FUNC u32 GetItemAttrSub(struct ItemDataSub * sub, u32 attr)
 {
     switch (attr)
     {
@@ -926,7 +924,7 @@ u32 GetItemAttrSub(struct ItemDataSub * sub, u32 attr)
     }
 }
 
-u16 TMHMGetMove(u16 a0)
+THUMB_FUNC u16 TMHMGetMove(u16 a0)
 {
     if (a0 < ITEM_TM01 || a0 > ITEM_HM08)
         return MOVE_NONE;
@@ -934,7 +932,7 @@ u16 TMHMGetMove(u16 a0)
     return sTMHMMoves[a0];
 }
 
-BOOL MoveIsHM(u16 a0)
+THUMB_FUNC BOOL MoveIsHM(u16 a0)
 {
     u8 i;
     for (i = 0; i < 8; i++)
@@ -946,14 +944,14 @@ BOOL MoveIsHM(u16 a0)
     return FALSE;
 }
 
-u8 ItemToTMHMId(u16 a0)
+THUMB_FUNC u8 ItemToTMHMId(u16 a0)
 {
     if (a0 < ITEM_TM01 || a0 > ITEM_HM08)
         return 0;
     return (u8)(a0 - ITEM_TM01);
 }
 
-BOOL ItemIdIsMail(u16 a0)
+THUMB_FUNC BOOL ItemIdIsMail(u16 a0)
 {
     u32 i;
     for (i = 0; i < 12; i++)
@@ -964,7 +962,7 @@ BOOL ItemIdIsMail(u16 a0)
     return FALSE;
 }
 
-u8 ItemToMailId(u16 a0)
+THUMB_FUNC u8 ItemToMailId(u16 a0)
 {
     u32 i;
     for (i = 0; i < 12; i++)
@@ -975,14 +973,14 @@ u8 ItemToMailId(u16 a0)
     return 0;
 }
 
-u16 MailToItemId(u8 i)
+THUMB_FUNC u16 MailToItemId(u8 i)
 {
     if (i >= 12)
         return 0;
     return sMailIdxs[i];
 }
 
-BOOL ItemIdIsBerry(u16 a0)
+THUMB_FUNC BOOL ItemIdIsBerry(u16 a0)
 {
     u32 i;
     for (i = 0; i < 64; i++)
@@ -993,21 +991,21 @@ BOOL ItemIdIsBerry(u16 a0)
     return FALSE;
 }
 
-u8 ItemToBerryId(u16 item_id)
+THUMB_FUNC u8 ItemToBerryId(u16 item_id)
 {
     if (item_id < FIRST_BERRY_IDX)
         return 0xFF;
     return (u8)(item_id - FIRST_BERRY_IDX);
 }
 
-u16 BerryToItemId(u8 a0)
+THUMB_FUNC u16 BerryToItemId(u8 a0)
 {
     if (a0 >= NUM_BERRIES)
         return 0xFFFF;
     return sBerryIdxs[a0];
 }
 
-u8 ItemIsBitter(u16 item_id)
+THUMB_FUNC u8 ItemIsBitter(u16 item_id)
 {
     return item_id == ITEM_ENERGYPOWDER ||
            item_id == ITEM_ENERGY_ROOT  ||
@@ -1015,12 +1013,12 @@ u8 ItemIsBitter(u16 item_id)
            item_id == ITEM_REVIVAL_HERB;
 }
 
-struct ItemData * LoadAllItemData(u32 heap_id)
+THUMB_FUNC struct ItemData * LoadAllItemData(u32 heap_id)
 {
     return AllocAndReadFromNarcMemberByIdPair(NARC_ITEMTOOL_ITEMDATA_ITEM_DATA, 0, heap_id, 0, sizeof(struct ItemData) * GetItemIndexMapping(ITEM_SECRETPOTION, 0));
 }
 
-struct ItemData * GetItemDataPtrFromArray(struct ItemData * a0, u16 item_id)
+THUMB_FUNC struct ItemData * GetItemDataPtrFromArray(struct ItemData * a0, u16 item_id)
 {
     return a0 + item_id;
 }

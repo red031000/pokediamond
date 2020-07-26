@@ -3,34 +3,32 @@
 #include "itemtool.h"
 #include "msgdata.h"
 
-#pragma thumb on
-
-NARC * OpenNutsDataNarc(u32 heap_id)
+THUMB_FUNC NARC * OpenNutsDataNarc(u32 heap_id)
 {
     return NARC_ctor(NARC_ITEMTOOL_ITEMDATA_NUTS_DATA, heap_id);
 }
 
-struct NutData * ReadNutDataFromNarc(NARC * narc, u32 berry_idx, u32 heap_id)
+THUMB_FUNC struct NutData * ReadNutDataFromNarc(NARC * narc, u32 berry_idx, u32 heap_id)
 {
     return NARC_AllocAndReadWholeMember(narc, berry_idx, heap_id);
 }
 
-void CloseNutsDataNarc(NARC * narc)
+THUMB_FUNC void CloseNutsDataNarc(NARC * narc)
 {
     NARC_dtor(narc);
 }
 
-struct NutData * LoadNutDataSingle(s32 berry_idx, u32 heap_id)
+THUMB_FUNC struct NutData * LoadNutDataSingle(s32 berry_idx, u32 heap_id)
 {
     return AllocAndReadWholeNarcMemberByIdPair(NARC_ITEMTOOL_ITEMDATA_NUTS_DATA, berry_idx, heap_id);
 }
 
-struct NutData * LoadNutDataSingleByItemId(s32 item_id, u32 heap_id)
+THUMB_FUNC struct NutData * LoadNutDataSingleByItemId(s32 item_id, u32 heap_id)
 {
     return LoadNutDataSingle(item_id - FIRST_BERRY_IDX, heap_id);
 }
 
-u32 GetNutAttr(struct NutData * nut, u32 attr)
+THUMB_FUNC u32 GetNutAttr(struct NutData * nut, u32 attr)
 {
     switch (attr)
     {
@@ -61,7 +59,7 @@ u32 GetNutAttr(struct NutData * nut, u32 attr)
     }
 }
 
-struct String * GetNutName(u32 berry_idx, u32 heap_id)
+THUMB_FUNC struct String * GetNutName(u32 berry_idx, u32 heap_id)
 {
     struct MsgData * msgData = NewMsgDataFromNarc(1, NARC_MSGDATA_MSG, 373, heap_id);
     struct String * ret = NewString_ReadMsgData(msgData, berry_idx);
@@ -69,7 +67,7 @@ struct String * GetNutName(u32 berry_idx, u32 heap_id)
     return ret;
 }
 
-struct String * GetNutDesc(u32 berry_idx, u32 heap_id)
+THUMB_FUNC struct String * GetNutDesc(u32 berry_idx, u32 heap_id)
 {
     struct MsgData * msgData = NewMsgDataFromNarc(1, NARC_MSGDATA_MSG, 372, heap_id);
     struct String * ret = NewString_ReadMsgData(msgData, berry_idx);

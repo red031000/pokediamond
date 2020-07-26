@@ -6,8 +6,6 @@
 #include "string16.h"
 #include "proto.h"
 
-#pragma thumb on
-
 static void * LoadSingleElementFromNarc(NarcId narc_id, s32 file_id, u32 heap_id);
 static void FreeMsgDataRawData(void * data);
 static void ReadMsgData_ExistingTable_ExistingArray(struct MsgDataTable * table, u32 num, u16 * dest);
@@ -20,17 +18,17 @@ static struct String * ReadMsgData_ExistingNarc_NewString(NARC * narc, u32 group
 static u16 GetMsgCount_ExistingTable(struct MsgDataTable * tbl);
 static u16 GetMsgCount_TableFromNarc(NarcId narc_id, s32 file_id);
 
-static void * LoadSingleElementFromNarc(NarcId narc_id, s32 file_id, u32 heap_id)
+THUMB_FUNC static void * LoadSingleElementFromNarc(NarcId narc_id, s32 file_id, u32 heap_id)
 {
     return AllocAndReadWholeNarcMemberByIdPair(narc_id, file_id, heap_id);
 }
 
-static void FreeMsgDataRawData(void * data)
+THUMB_FUNC static void FreeMsgDataRawData(void * data)
 {
     FreeToHeap(data);
 }
 
-inline static void Decrypt1(struct MsgDataAlloc * arg0, u32 arg1, u32 seed)
+THUMB_FUNC inline static void Decrypt1(struct MsgDataAlloc * arg0, u32 arg1, u32 seed)
 {
     seed = seed * 765 * (arg1 + 1) & 0xffff;
     seed |= seed << 16;
@@ -38,7 +36,7 @@ inline static void Decrypt1(struct MsgDataAlloc * arg0, u32 arg1, u32 seed)
     arg0->length ^= seed;
 }
 
-inline static void Decrypt2(u16 * arg0, u32 count, u32 arg2)
+THUMB_FUNC inline static void Decrypt2(u16 * arg0, u32 count, u32 arg2)
 {
     u16 seed = (u16)((arg2 + 1) * 596947);
 
@@ -50,7 +48,7 @@ inline static void Decrypt2(u16 * arg0, u32 count, u32 arg2)
     }
 }
 
-static void ReadMsgData_ExistingTable_ExistingArray(struct MsgDataTable * table, u32 num, u16 * dest)
+THUMB_FUNC static void ReadMsgData_ExistingTable_ExistingArray(struct MsgDataTable * table, u32 num, u16 * dest)
 {
     struct MsgDataAlloc sp0;
 
@@ -68,7 +66,7 @@ static void ReadMsgData_ExistingTable_ExistingArray(struct MsgDataTable * table,
     }
 }
 
-static void ReadMsgData_NewNarc_ExistingArray(NarcId narc_id, u32 group, u32 num, u32 heap_id, u16 * dest)
+THUMB_FUNC static void ReadMsgData_NewNarc_ExistingArray(NarcId narc_id, u32 group, u32 num, u32 heap_id, u16 * dest)
 {
     NARC * narc = NARC_ctor(narc_id, heap_id);
     u16 header[2];
@@ -84,12 +82,12 @@ static void ReadMsgData_NewNarc_ExistingArray(NarcId narc_id, u32 group, u32 num
     }
 }
 
-static void CopyEncryptedMessage16(u16 * dest, const u16 * src, struct MsgDataAlloc * param)
+THUMB_FUNC static void CopyEncryptedMessage16(u16 * dest, const u16 * src, struct MsgDataAlloc * param)
 {
     MI_CpuCopy16(src, dest, 2 * param->length);
 }
 
-static void ReadMsgData_ExistingTable_ExistingString(struct MsgDataTable * table, u32 num, struct String * dest)
+THUMB_FUNC static void ReadMsgData_ExistingTable_ExistingString(struct MsgDataTable * table, u32 num, struct String * dest)
 {
     struct MsgDataAlloc alloc;
     u16 * buf;
@@ -113,7 +111,7 @@ static void ReadMsgData_ExistingTable_ExistingString(struct MsgDataTable * table
     }
 }
 
-static struct String * ReadMsgData_ExistingTable_NewString(struct MsgDataTable * table, u32 num, u32 heap_id)
+THUMB_FUNC static struct String * ReadMsgData_ExistingTable_NewString(struct MsgDataTable * table, u32 num, u32 heap_id)
 {
     struct MsgDataAlloc alloc;
     u16 * buf;
@@ -145,7 +143,7 @@ static struct String * ReadMsgData_ExistingTable_NewString(struct MsgDataTable *
     }
 }
 
-void ReadMsgData_NewNarc_ExistingString(NarcId narc_id, u32 group, u32 num, u32 heap_id, struct String * dest)
+THUMB_FUNC void ReadMsgData_NewNarc_ExistingString(NarcId narc_id, u32 group, u32 num, u32 heap_id, struct String * dest)
 {
     NARC * narc = NARC_ctor(narc_id, heap_id);
     if (narc != NULL)
@@ -155,7 +153,7 @@ void ReadMsgData_NewNarc_ExistingString(NarcId narc_id, u32 group, u32 num, u32 
     }
 }
 
-static void ReadMsgData_ExistingNarc_ExistingString(NARC * narc, u32 group, u32 num, u32 heap_id, struct String * dest)
+THUMB_FUNC static void ReadMsgData_ExistingNarc_ExistingString(NARC * narc, u32 group, u32 num, u32 heap_id, struct String * dest)
 {
     u16 * buf;
     u32 size;
@@ -185,7 +183,7 @@ static void ReadMsgData_ExistingNarc_ExistingString(NARC * narc, u32 group, u32 
     }
 }
 
-struct String * ReadMsgData_NewNarc_NewString(NarcId narc_id, u32 group, u32 num, u32 heap_id)
+THUMB_FUNC struct String * ReadMsgData_NewNarc_NewString(NarcId narc_id, u32 group, u32 num, u32 heap_id)
 {
     NARC * narc = NARC_ctor(narc_id, heap_id);
     struct String * string;
@@ -201,7 +199,7 @@ struct String * ReadMsgData_NewNarc_NewString(NarcId narc_id, u32 group, u32 num
     return string;
 }
 
-static struct String * ReadMsgData_ExistingNarc_NewString(NARC * narc, u32 group, u32 num, u32 heap_id)
+THUMB_FUNC static struct String * ReadMsgData_ExistingNarc_NewString(NARC * narc, u32 group, u32 num, u32 heap_id)
 {
     struct String * dest;
     u16 * buf;
@@ -236,19 +234,19 @@ static struct String * ReadMsgData_ExistingNarc_NewString(NARC * narc, u32 group
     }
 }
 
-static u16 GetMsgCount_ExistingTable(struct MsgDataTable * tbl)
+THUMB_FUNC static u16 GetMsgCount_ExistingTable(struct MsgDataTable * tbl)
 {
     return tbl->count;
 }
 
-static u16 GetMsgCount_TableFromNarc(NarcId narc_id, s32 file_id)
+THUMB_FUNC static u16 GetMsgCount_TableFromNarc(NarcId narc_id, s32 file_id)
 {
     u16 n[2];
     ReadFromNarcMemberByIdPair(&n, narc_id, file_id, 0, 4);
     return n[0];
 }
 
-struct MsgData * NewMsgDataFromNarc(u32 type, NarcId narc_id, s32 file_id, u32 heap_id)
+THUMB_FUNC struct MsgData * NewMsgDataFromNarc(u32 type, NarcId narc_id, s32 file_id, u32 heap_id)
 {
     struct MsgData * msgData = AllocFromHeapAtEnd(heap_id, sizeof(struct MsgData));
     if (msgData != NULL)
@@ -274,7 +272,7 @@ struct MsgData * NewMsgDataFromNarc(u32 type, NarcId narc_id, s32 file_id, u32 h
     return msgData;
 }
 
-void DestroyMsgData(struct MsgData * msgData)
+THUMB_FUNC void DestroyMsgData(struct MsgData * msgData)
 {
     if (msgData != NULL)
     {
@@ -291,7 +289,7 @@ void DestroyMsgData(struct MsgData * msgData)
     }
 }
 
-void ReadMsgDataIntoString(struct MsgData * msgData, u32 msg_no, struct String * dest)
+THUMB_FUNC void ReadMsgDataIntoString(struct MsgData * msgData, u32 msg_no, struct String * dest)
 {
     switch (msgData->type)
     {
@@ -304,7 +302,7 @@ void ReadMsgDataIntoString(struct MsgData * msgData, u32 msg_no, struct String *
     }
 }
 
-struct String * NewString_ReadMsgData(struct MsgData * msgData, u32 msg_no)
+THUMB_FUNC struct String * NewString_ReadMsgData(struct MsgData * msgData, u32 msg_no)
 {
     switch (msgData->type)
     {
@@ -317,7 +315,7 @@ struct String * NewString_ReadMsgData(struct MsgData * msgData, u32 msg_no)
     }
 }
 
-u16 MsgDataGetCount(struct MsgData * msgData)
+THUMB_FUNC u16 MsgDataGetCount(struct MsgData * msgData)
 {
     switch (msgData->type)
     {
@@ -330,7 +328,7 @@ u16 MsgDataGetCount(struct MsgData * msgData)
     }
 }
 
-void ReadMsgDataIntoU16Array(struct MsgData * msgData, u32 msg_no, u16 * dest)
+THUMB_FUNC void ReadMsgDataIntoU16Array(struct MsgData * msgData, u32 msg_no, u16 * dest)
 {
     switch (msgData->type)
     {
@@ -343,14 +341,14 @@ void ReadMsgDataIntoU16Array(struct MsgData * msgData, u32 msg_no, u16 * dest)
     }
 }
 
-void GetSpeciesNameIntoArray(u16 species, u32 heap_id, u16 * dest)
+THUMB_FUNC void GetSpeciesNameIntoArray(u16 species, u32 heap_id, u16 * dest)
 {
     struct MsgData * msgData = NewMsgDataFromNarc(1, NARC_MSGDATA_MSG, 362, heap_id);
     ReadMsgDataIntoU16Array(msgData, species, dest);
     DestroyMsgData(msgData);
 }
 
-struct String * ReadMsgData_ExpandPlaceholders(u32 * a0, struct MsgData * msgData, u32 msgno, u32 a3)
+THUMB_FUNC struct String * ReadMsgData_ExpandPlaceholders(u32 * a0, struct MsgData * msgData, u32 msgno, u32 a3)
 {
     struct String * ret = NULL;
     struct String * r4 = String_ctor(1024, 0);
@@ -369,7 +367,7 @@ struct String * ReadMsgData_ExpandPlaceholders(u32 * a0, struct MsgData * msgDat
     return ret;
 }
 
-struct String * GetMoveName(u32 move, u32 heapno)
+THUMB_FUNC struct String * GetMoveName(u32 move, u32 heapno)
 {
     struct MsgData * msgData = NewMsgDataFromNarc(1, NARC_MSGDATA_MSG, 588, heapno);
     struct String * ret;
@@ -386,7 +384,7 @@ struct String * GetMoveName(u32 move, u32 heapno)
     return NULL;
 }
 
-struct String * GetSpeciesName(u16 species, u32 heap_id)
+THUMB_FUNC struct String * GetSpeciesName(u16 species, u32 heap_id)
 {
     struct String * ret;
     struct MsgData * msgData = NewMsgDataFromNarc(1, NARC_MSGDATA_MSG, 362, heap_id);

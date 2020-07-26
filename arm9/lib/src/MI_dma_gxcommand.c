@@ -6,7 +6,14 @@
 
 static MIiGXDmaParams MIi_GXDmaParams = { FALSE };
 
+static void MIi_FIFOCallback(void);
+static void MIi_DMACallback(void * arg);
+static void MIi_DMAFastCallback(void * arg);
+
+#ifndef __GNUC__
 #pragma section ITCM begin
+#endif
+SECTION_ITCM
 ARM_FUNC void MI_SendGXCommand(u32 dmaNo, const void *src, u32 commandLength)
 {
     vu32 *dmaCntp;
@@ -38,7 +45,9 @@ ARM_FUNC void MI_SendGXCommand(u32 dmaNo, const void *src, u32 commandLength)
         while (*dmaCntp & 0x80000000) {}
     } while(0);
 }
+#ifndef __GNUC__
 #pragma section ITCM end
+#endif
 
 ARM_FUNC void MI_SendGXCommandAsync(u32 dmaNo, const void *src, u32 commandLength, MIDmaCallback callback, void *arg)
 {
@@ -104,7 +113,7 @@ ARM_FUNC static void MIi_FIFOCallback(void)
     }
 }
 
-ARM_FUNC static void MIi_DMACallback(void *)
+ARM_FUNC static void MIi_DMACallback(void * arg)
 {
     (void)OS_DisableIrqMask(OS_IE_GXFIFO);
 
@@ -141,7 +150,7 @@ ARM_FUNC void MI_SendGXCommandAsyncFast(u32 dmaNo, const void *src, u32 commandL
     MIi_DmaSetParams(dmaNo, (u32)src, (u32)REG_GXFIFO_ADDR, MI_CNT_GXCOPY_IF(commandLength));
 }
 
-ARM_FUNC static void MIi_DMAFastCallback(void *)
+ARM_FUNC static void MIi_DMAFastCallback(void * arg)
 {
     MIi_GXDmaParams.isBusy = FALSE;
 

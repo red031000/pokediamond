@@ -26,13 +26,17 @@ ARM_FUNC FSResult FSi_ReadRomCallback(FSArchive * p_arc, void * dst, u32 src, u3
 
 ARM_FUNC FSResult FSi_WriteDummyCallback(FSArchive * p_arc, const void *src, u32 dst, u32 len)
 {
+#ifndef __GNUC__
 #pragma unused(p_arc, src, dst, len)
+#endif
     return FS_RESULT_FAILURE;
 }
 
 ARM_FUNC FSResult FSi_RomArchiveProc(FSFile * p_arc, FSCommandType cmd)
 {
+#ifndef __GNUC__
 #pragma unused(p_arc)
+#endif
     switch (cmd)
     {
     case FS_COMMAND_ACTIVATE:
@@ -50,13 +54,17 @@ ARM_FUNC FSResult FSi_RomArchiveProc(FSFile * p_arc, FSCommandType cmd)
 
 ARM_FUNC FSResult FSi_ReadDummyCallback(FSArchive *p_arc, void *dst, u32 src, u32 len)
 {
+#ifndef __GNUC__
 #pragma unused (p_arc, dst, src, len)
+#endif
     return FS_RESULT_FAILURE;
 }
 
 ARM_FUNC FSResult FSi_EmptyArchiveProc(FSFile *p_file, FSCommandType cmd)
 {
+#ifndef __GNUC__
 #pragma unused(p_file, cmd)
+#endif
     return FS_RESULT_UNSUPPORTED;
 }
 

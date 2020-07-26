@@ -2,8 +2,6 @@
 #include "map_header.h"
 #include "constants/map_sections.h"
 
-#pragma thumb on
-
 // Static decls
 u32 MapNumberBoundsCheck(u32 mapno);
 
@@ -595,7 +593,7 @@ const struct MapHeader sMapHeaders[] = {
     { 0x20, 0xf, 0xa6, 0x74, 0x243, 0x79, 0x441, 0x441, 0xffff, 0x1ff, MAPSEC_CONTEST_HALL, 0x0, 0x0, 0x4, 7, FALSE, FALSE, FALSE, FALSE },
 };
 
-u32 MapNumberBoundsCheck(u32 mapno)
+THUMB_FUNC u32 MapNumberBoundsCheck(u32 mapno)
 {
     if (mapno >= NELEMS(sMapHeaders))
     {
@@ -605,19 +603,19 @@ u32 MapNumberBoundsCheck(u32 mapno)
     return mapno;
 }
 
-u8 FUN_02034724(u32 mapno)
+THUMB_FUNC u8 FUN_02034724(u32 mapno)
 {
     mapno = MapNumberBoundsCheck(mapno);
     return sMapHeaders[mapno].unk0;
 }
 
-u8 FUN_02034738(u32 mapno)
+THUMB_FUNC u8 FUN_02034738(u32 mapno)
 {
     mapno = MapNumberBoundsCheck(mapno);
     return sMapHeaders[mapno].unk1;
 }
 
-u16 FUN_0203474C(u32 mapno)
+THUMB_FUNC u16 FUN_0203474C(u32 mapno)
 {
     u16 ret;
     mapno = MapNumberBoundsCheck(mapno);
@@ -628,103 +626,103 @@ u16 FUN_0203474C(u32 mapno)
     return ret;
 }
 
-u16 MapHeader_GetMsgBank(u32 mapno)
+THUMB_FUNC u16 MapHeader_GetMsgBank(u32 mapno)
 {
     mapno = MapNumberBoundsCheck(mapno);
     return sMapHeaders[mapno].unk8;
 }
 
-u16 MapHeader_GetScrSeqReleaseNo(u32 mapno)
+THUMB_FUNC u16 MapHeader_GetScrSeqReleaseNo(u32 mapno)
 {
     mapno = MapNumberBoundsCheck(mapno);
     return sMapHeaders[mapno].unk4;
 }
 
-u16 FUN_0203479C(u32 mapno)
+THUMB_FUNC u16 FUN_0203479C(u32 mapno)
 {
     mapno = MapNumberBoundsCheck(mapno);
     return sMapHeaders[mapno].unk6;
 }
 
-u16 FUN_020347B0(u32 mapno)
+THUMB_FUNC u16 FUN_020347B0(u32 mapno)
 {
     mapno = MapNumberBoundsCheck(mapno);
     return sMapHeaders[mapno].unkA;
 }
 
-u16 FUN_020347C4(u32 mapno)
+THUMB_FUNC u16 FUN_020347C4(u32 mapno)
 {
     mapno = MapNumberBoundsCheck(mapno);
     return sMapHeaders[mapno].unkC;
 }
 
-BOOL FUN_020347D8(u32 mapno)
+THUMB_FUNC BOOL FUN_020347D8(u32 mapno)
 {
     mapno = MapNumberBoundsCheck(mapno);
     return sMapHeaders[mapno].unkE != 0xFFFF;
 }
 
-u16 FUN_020347FC(u32 mapno)
+THUMB_FUNC u16 FUN_020347FC(u32 mapno)
 {
     mapno = MapNumberBoundsCheck(mapno);
     return sMapHeaders[mapno].unkE;
 }
 
-u16 FUN_02034810(u32 mapno)
+THUMB_FUNC u16 FUN_02034810(u32 mapno)
 {
     mapno = MapNumberBoundsCheck(mapno);
     return sMapHeaders[mapno].unk10;
 }
 
-u16 FUN_02034824(u32 mapno)
+THUMB_FUNC u16 FUN_02034824(u32 mapno)
 {
     mapno = MapNumberBoundsCheck(mapno);
     return sMapHeaders[mapno].mapsec;
 }
 
-u8 FUN_02034838(u32 mapno)
+THUMB_FUNC u8 FUN_02034838(u32 mapno)
 {
     mapno = MapNumberBoundsCheck(mapno);
     return sMapHeaders[mapno].unk14;
 }
 
-u8 FUN_0203484C(u32 mapno)
+THUMB_FUNC u8 FUN_0203484C(u32 mapno)
 {
     mapno = MapNumberBoundsCheck(mapno);
     return sMapHeaders[mapno].unk15;
 }
 
-u8 FUN_02034860(u32 mapno)
+THUMB_FUNC u8 FUN_02034860(u32 mapno)
 {
     mapno = MapNumberBoundsCheck(mapno);
     return sMapHeaders[mapno].unk17_0;
 }
 
-u8 FUN_0203487C(u32 mapno)
+THUMB_FUNC u8 FUN_0203487C(u32 mapno)
 {
     mapno = MapNumberBoundsCheck(mapno);
     return sMapHeaders[mapno].unk17_6;
 }
 
-u8 FUN_02034898(u32 mapno)
+THUMB_FUNC u8 FUN_02034898(u32 mapno)
 {
     mapno = MapNumberBoundsCheck(mapno);
     return sMapHeaders[mapno].unk17_7;
 }
 
-u8 FUN_020348B4(u32 mapno)
+THUMB_FUNC u8 FUN_020348B4(u32 mapno)
 {
     mapno = MapNumberBoundsCheck(mapno);
     return sMapHeaders[mapno].unk17_4;
 }
 
-u8 FUN_020348D0(u32 mapno)
+THUMB_FUNC u8 FUN_020348D0(u32 mapno)
 {
     mapno = MapNumberBoundsCheck(mapno);
     return sMapHeaders[mapno].unk16;
 }
 
-BOOL FUN_020348E4(u32 mapno)
+THUMB_FUNC BOOL FUN_020348E4(u32 mapno)
 {
     if (!FUN_02034898(mapno))
         return FALSE;
@@ -733,62 +731,62 @@ BOOL FUN_020348E4(u32 mapno)
     return FALSE;
 }
 
-BOOL FUN_02034908(u32 mapno)
+THUMB_FUNC BOOL FUN_02034908(u32 mapno)
 {
     return !FUN_0203474C(mapno);
 }
 
-BOOL FUN_0203491C(u32 mapno)
+THUMB_FUNC BOOL FUN_0203491C(u32 mapno)
 {
     return FUN_020348D0(mapno) == 5;
 }
 
-BOOL FUN_02034930(u32 mapno)
+THUMB_FUNC BOOL FUN_02034930(u32 mapno)
 {
     return FUN_020348D0(mapno) == 3;
 }
 
-BOOL FUN_02034944(u32 mapno)
+THUMB_FUNC BOOL FUN_02034944(u32 mapno)
 {
     return FUN_020348D0(mapno) == 4 || FUN_020348D0(mapno) == 5;
 }
 
-BOOL FUN_02034964(u32 mapno)
+THUMB_FUNC BOOL FUN_02034964(u32 mapno)
 {
     return FUN_020348D0(mapno) == 1 || FUN_020348D0(mapno) == 2;
 }
 
-BOOL FUN_02034984(u32 mapno)
+THUMB_FUNC BOOL FUN_02034984(u32 mapno)
 {
     return !!FUN_0203491C(mapno);
 }
 
-BOOL FUN_02034998(u32 mapno)
+THUMB_FUNC BOOL FUN_02034998(u32 mapno)
 {
     return mapno == 466;
 }
 
-BOOL FUN_020349AC(u32 mapno)
+THUMB_FUNC BOOL FUN_020349AC(u32 mapno)
 {
     return mapno == 219;
 }
 
-BOOL FUN_020349B8(u32 mapno)
+THUMB_FUNC BOOL FUN_020349B8(u32 mapno)
 {
     return mapno == 287;
 }
 
-BOOL FUN_020349CC(u32 mapno)
+THUMB_FUNC BOOL FUN_020349CC(u32 mapno)
 {
     return mapno == 253;
 }
 
-BOOL FUN_020349D8(u32 mapno)
+THUMB_FUNC BOOL FUN_020349D8(u32 mapno)
 {
     return mapno == 220;
 }
 
-BOOL FUN_020349E4(u16 a0)
+THUMB_FUNC BOOL FUN_020349E4(u16 a0)
 {
     int i;
 
@@ -801,7 +799,7 @@ BOOL FUN_020349E4(u16 a0)
     return FALSE;
 }
 
-u16 FUN_02034A04(u16 a0)
+THUMB_FUNC u16 FUN_02034A04(u16 a0)
 {
     int i;
 

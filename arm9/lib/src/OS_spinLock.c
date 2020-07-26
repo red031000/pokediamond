@@ -170,12 +170,50 @@ ARM_FUNC u16 OS_ReadOwnerOfLockWord(OSLockWord * lock)
     return lock->ownerID;
 }
 
+#ifdef __GNUC__
+NAKED
+ARM_FUNC s32 OS_UnLockCartridge(u16 lockID)
+{
+    asm("ldr r1, =OS_UnlockCartridge\n\
+         bx r1\n\
+        .pool");
+}
+#else
 ARM_FUNC asm s32 OS_UnLockCartridge(u16 lockID)
 {
     ldr r1, =OS_UnlockCartridge
     bx r1
 }
+#endif
 
+#ifdef __GNUC__
+NAKED
+ARM_FUNC s32 OS_GetLockID(void)
+{
+    asm("ldr r3, =0x027fffb0\n\
+         ldr r1, [r3, #0x0]\n\
+         clz r2, r1\n\
+         cmp r2, #0x20\n\
+         movne r0, #0x40\n\
+         bne _020CA0D4\n\
+         add r3, r3, #0x4\n\
+         ldr r1, [r3, #0x0]\n\
+         clz r2, r1\n\
+         cmp r2, #0x20\n\
+         ldr r0, =0xFFFFFFFD\n\
+         bxeq lr\n\
+         mov r0, #0x60\n\
+    _020CA0D4:\n\
+         add r0, r0, r2\n\
+         mov r1, #0x80000000\n\
+         mov r1, r1, lsr r2\n\
+         ldr r2, [r3, #0x0]\n\
+         bic r2, r2, r1\n\
+         str r2, [r3, #0x0]\n\
+         bx lr\n\
+         .pool");
+}
+#else
 ARM_FUNC asm s32 OS_GetLockID(void)
 {
     ldr r3, =HW_LOCK_ID_FLAG_MAIN
@@ -200,7 +238,26 @@ _020CA0D4:
     str r2, [r3, #0x0]
     bx lr
 }
+#endif
 
+#ifdef __GNUC__
+NAKED
+ARM_FUNC void OS_ReleaseLockID(register u16 lockID)
+{
+    asm("ldr r3, =0x027fffb0\n\
+         cmp r0, #0x60\n\
+         addpl r3, r3, #0x4\n\
+         subpl r0, r0, #0x60\n\
+         submi r0, r0, #0x40\n\
+         mov r1, #0x80000000\n\
+         mov r1, r1, lsr r0\n\
+         ldr r2, [r3, #0x0]\n\
+         orr r2, r2, r1\n\
+         str r2, [r3, #0x0]\n\
+         bx lr\n\
+         .pool");
+}
+#else
 ARM_FUNC asm void OS_ReleaseLockID(register u16 lockID)
 {
     ldr r3, =HW_LOCK_ID_FLAG_MAIN
@@ -215,3 +272,4 @@ ARM_FUNC asm void OS_ReleaseLockID(register u16 lockID)
     str r2, [r3, #0x0]
     bx lr
 }
+#endif

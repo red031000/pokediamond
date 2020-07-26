@@ -9,6 +9,18 @@ ARM_FUNC void MTX_ScaleApply22(struct Mtx22 *mtx, struct Mtx22 *dst, fx32 x, fx3
     dst->_[3] = (fx32)(((fx64)y * mtx->_[3]) >> FX32_INT_SHIFT);
 }
 
+#ifdef __GNUC__
+NAKED
+ARM_FUNC void MTX_Identity22_(struct Mtx22 *mtx) {
+    asm("mov r1, #0x0\n\
+         mov r2, #0x1000\n\
+         mov r3, #0x0\n\
+         stmia r0!, {r2-r3}\n\
+         stmia r0!, {r1-r2}\n\
+         bx lr\n\
+         .pool");
+}
+#else
 ARM_FUNC asm void MTX_Identity22_(struct Mtx22 *mtx){
     mov r1, #0x0
     mov r2, #0x1000
@@ -17,7 +29,20 @@ ARM_FUNC asm void MTX_Identity22_(struct Mtx22 *mtx){
     stmia r0!, {r1-r2}
     bx lr
 }
+#endif
 
+#ifdef __GNUC__
+NAKED
+THUMB_FUNC void MTX_Rot22_(struct Mtx22 *mtx, fx32 sinphi, fx32 cosphi) {
+    asm("str r2, [r0, #0x0]\n\
+         str r1, [r0, #0x4]\n\
+         neg r1, r1\n\
+         str r1, [r0, #0x8]\n\
+         str r2, [r0, #0xc]\n\
+         bx lr\n\
+         .pool");
+}
+#else
 THUMB_FUNC asm void MTX_Rot22_(struct Mtx22 *mtx, fx32 sinphi, fx32 cosphi){
     str r2, [r0, #0x0]
 	str r1, [r0, #0x4]
@@ -26,3 +51,4 @@ THUMB_FUNC asm void MTX_Rot22_(struct Mtx22 *mtx, fx32 sinphi, fx32 cosphi){
 	str r2, [r0, #0xc]
 	bx lr
 }
+#endif

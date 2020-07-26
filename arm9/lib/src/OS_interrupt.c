@@ -3,7 +3,12 @@
 #include "OS_interrupt.h"
 #include "OS_thread.h"
 
+#ifdef __GNUC__
+#pragma GCC push_options
+#pragma GCC optimize ("Os")
+#else
 #pragma optimize_for_size on
+#endif
 
 extern OSThreadQueue OSi_IrqThreadQueue;
 
@@ -89,7 +94,7 @@ ARM_FUNC OSIrqMask OS_SetIrqMask(OSIrqMask mask)
     reg_OS_IME = 0;
     OSIrqMask regIe = reg_OS_IE;
     reg_OS_IE = mask;
-    u16 unused = reg_OS_IME; //needed because otherwise it doesn't match
+    u16 unused UNUSED = reg_OS_IME; //needed because otherwise it doesn't match
     reg_OS_IME = regIme;
     return regIe;
 }
@@ -100,7 +105,7 @@ ARM_FUNC OSIrqMask OS_EnableIrqMask(OSIrqMask mask)
     reg_OS_IME = 0;
     OSIrqMask regIe = reg_OS_IE;
     reg_OS_IE = regIe | mask;
-    u16 unused = reg_OS_IME;
+    u16 unused UNUSED = reg_OS_IME;
     reg_OS_IME = regIme;
     return regIe;
 }
@@ -111,7 +116,7 @@ ARM_FUNC OSIrqMask OS_DisableIrqMask(OSIrqMask mask)
     reg_OS_IME = 0;
     OSIrqMask regIe = reg_OS_IE;
     reg_OS_IE = regIe & ~mask;
-    u16 unused = reg_OS_IME;
+    u16 unused UNUSED = reg_OS_IME;
     reg_OS_IME = regIme;
     return regIe;
 }
@@ -122,7 +127,7 @@ ARM_FUNC OSIrqMask OS_ResetRequestIrqMask(OSIrqMask mask)
     reg_OS_IME = 0;
     OSIrqMask regIf = reg_OS_IF;
     reg_OS_IF = mask;
-    u16 unused = reg_OS_IME;
+    u16 unused UNUSED = reg_OS_IME;
     reg_OS_IME = regIme;
     return regIf;
 }
@@ -137,3 +142,7 @@ ARM_FUNC void OS_SetIrqStackChecker(void)
     *(u32 *)(OSi_IRQ_STACK_BOTTOM - sizeof(u32)) = 0xfddb597dUL;
     *(u32 *)(OSi_IRQ_STACK_TOP) = 0x7bf9dd5bUL;
 }
+
+#ifdef __GNUC__
+#pragma GCC pop_options
+#endif
